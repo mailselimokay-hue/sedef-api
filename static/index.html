@@ -9,145 +9,47 @@
     <link rel="apple-touch-icon" href="logo.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-        
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
-        
         body { background-color: #1a1b1e; color: #e4e5e8; }
-        
-        .navbar { 
-            background-color: #25262b; 
-            border-bottom: 1px solid #141517;
-            padding: 15px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
+        .navbar { background-color: #25262b; border-bottom: 1px solid #141517; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; }
         .logo-container { display: flex; align-items: center; gap: 18px; }
         .logo-container img { height: 75px; } 
-        
         .logo-text { font-size: 28px; font-weight: 700; color: #c4a35a; letter-spacing: 1px; }
-        
         .nav-links { display: flex; gap: 30px; }
-        .nav-links a { 
-            text-decoration: none; 
-            color: #b0b3b8; 
-            font-size: 13px; 
-            font-weight: 700; 
-            text-transform: uppercase;
-            transition: color 0.2s;
-        }
+        .nav-links a { text-decoration: none; color: #b0b3b8; font-size: 13px; font-weight: 700; text-transform: uppercase; transition: color 0.2s; }
         .nav-links a:hover { color: #c4a35a; }
-        
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            display: flex;
-            gap: 20px;
-            padding: 0 20px;
-        }
-        
-        .table-section {
-            flex: 2.5;
-            background-color: #25262b;
-            border: 1px solid #373a40;
-            border-radius: 6px;
-            padding: 20px 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        
-        .table-header {
-            text-align: center;
-            color: #c4a35a;
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
-        
+        .container { max-width: 1200px; margin: 30px auto; display: flex; gap: 20px; padding: 0 20px; }
+        .table-section { flex: 2.5; background-color: #25262b; border: 1px solid #373a40; border-radius: 6px; padding: 20px 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .table-header { text-align: center; color: #c4a35a; font-size: 18px; font-weight: 500; margin-bottom: 20px; letter-spacing: 1px; }
         table { width: 100%; border-collapse: collapse; }
-        
-        thead th {
-            color: #909296;
-            font-size: 12px;
-            font-weight: 400;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #373a40;
-            text-align: center;
-        }
+        thead th { color: #909296; font-size: 12px; font-weight: 400; padding-bottom: 15px; border-bottom: 1px solid #373a40; text-align: center; }
         thead th:first-child { text-align: left; }
-        
         tbody tr { border-bottom: 1px solid #373a40; transition: background-color 0.2s; }
         tbody tr:hover { background-color: #2c2e33; }
-        
         tbody td { padding: 12px 0; text-align: center; font-size: 16px; font-weight: 500; color: #e4e5e8; }
-        
         .product-cell { text-align: left; }
         .product-name { font-weight: 700; font-size: 14px; color: #ffffff; text-transform: uppercase; }
         .product-sub { font-weight: 400; font-size: 11px; color: #909296; text-transform: uppercase; margin-top: 3px; }
-        
         .down-text { color: #fa5252; }
         .up-text { color: #40c057; }
         .neutral-text { color: #909296; }
-        
         .icon-cell { color: #909296; font-size: 18px; cursor: pointer; }
-
-        .sidebar {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .banner {
-            width: 100%;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        
-        .banner-1 {
-            background: #141517;
-            height: 120px;
-            color: white;
-            padding: 15px;
-            font-weight: bold;
-            background-image: linear-gradient(45deg, #141517 25%, #1a1b1e 25%, #1a1b1e 50%, #141517 50%, #141517 75%, #1a1b1e 75%, #1a1b1e 100%);
-            background-size: 20px 20px;
-            border: 1px solid #373a40;
-        }
-        
-        .banner-2 {
-            background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
-            height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 28px;
-            font-weight: 900;
-            text-align: center;
-            line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            border: 1px solid #c4a35a;
-        }
-
-        /* Mobil Ekran Düzeltmeleri */
+        .sidebar { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .banner { width: 100%; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .banner-1 { background: #141517; height: 120px; color: white; padding: 15px; font-weight: bold; background-image: linear-gradient(45deg, #141517 25%, #1a1b1e 25%, #1a1b1e 50%, #141517 50%, #141517 75%, #1a1b1e 75%, #1a1b1e 100%); background-size: 20px 20px; border: 1px solid #373a40; }
+        .banner-2 { background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%); height: 250px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 28px; font-weight: 900; text-align: center; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #c4a35a; }
         @media (max-width: 768px) {
             .container { flex-direction: column; padding: 10px; margin: 10px auto; }
             .navbar { padding: 15px; flex-direction: column; gap: 10px; }
             .logo-container img { height: 50px; }
             .logo-text { font-size: 20px; }
             .nav-links { display: none; } 
-            
             .table-section { padding: 10px 5px; }
             table { table-layout: fixed; width: 100%; }
             tbody td { font-size: 13px; padding: 10px 2px; text-align: right; }
             thead th { font-size: 11px; padding-bottom: 10px; text-align: right; }
-            
             .product-cell { text-align: left; width: 35%; }
             thead th:first-child { text-align: left; }
-            
             .product-name { font-size: 11px; }
             .product-sub { font-size: 9px; }
             .icon-cell { display: none; } 
@@ -155,7 +57,6 @@
     </style>
 </head>
 <body>
-
     <div class="navbar">
         <div class="logo-container">
             <img src="logo.png" alt="Sedef Kuyumculuk" onerror="this.style.display='none'">
@@ -169,7 +70,6 @@
             <a href="#">İLETİŞİM</a>
         </div>
     </div>
-
     <div class="container">
         <div class="table-section">
             <div class="table-header">ALTIN FİYATLARI</div>
@@ -184,21 +84,15 @@
                     </tr>
                 </thead>
                 <tbody id="price-body">
-                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #909296;">Canlı Piyasa Bağlantısı Kuruluyor...</td></tr>
+                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #909296;">Canlı Piyasaya Bağlanıyor...</td></tr>
                 </tbody>
             </table>
         </div>
-        
         <div class="sidebar">
-            <div class="banner banner-1">
-                Canlı Piyasalar
-            </div>
-            <div class="banner banner-2">
-                FINE GOLD<br>999.9
-            </div>
+            <div class="banner banner-1">Canlı Piyasalar</div>
+            <div class="banner banner-2">FINE GOLD<br>999.9</div>
         </div>
     </div>
-
     <script>
         setInterval(() => {
             const now = new Date();
@@ -216,14 +110,10 @@
                 oncekiFiyatlar[isim] = yeniSatis;
                 return '<span class="neutral-text">-</span>';
             }
-            
             const eskiSatis = oncekiFiyatlar[isim];
             oncekiFiyatlar[isim] = yeniSatis;
-            
             if (yeniSatis === eskiSatis) return '<span class="neutral-text">-</span>';
-            
             const yuzde = (((yeniSatis - eskiSatis) / eskiSatis) * 100).toFixed(2);
-            
             if (yeniSatis > eskiSatis) {
                 return `<span class="up-text">↑ %${Math.abs(yuzde)}</span>`;
             } else {
@@ -233,22 +123,27 @@
 
         async function sistemiGuncelle() {
             try {
-                // Render sunucusunu aradan çıkarıp, doğrudan ziyaretçinin cihazı üzerinden veri çekiyoruz
-                const response = await fetch('https://api.genelpara.com/embed/altin.json');
-                const veri = await response.json();
+                // CORS ve IP engelini aşan nihai zırhlı bağlantı
+                const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://finans.truncgil.com/today.json');
+                const response = await fetch(proxyUrl);
+                const proxyData = await response.json();
+                
+                // AllOrigins'den gelen string veriyi JSON'a çeviriyoruz
+                const veri = JSON.parse(proxyData.contents);
 
-                // Ham API verileri
-                const h_alis = parseFloat(veri.GA.alis);
-                const h_satis = parseFloat(veri.GA.satis);
-                const usd_alis = parseFloat(veri.USD.alis);
-                const usd_satis = parseFloat(veri.USD.satis);
-                const eur_alis = parseFloat(veri.EUR.alis);
-                const eur_satis = parseFloat(veri.EUR.satis);
+                function formati_duzelt(deger) {
+                    return parseFloat(deger.replace(".", "").replace(",", "."));
+                }
 
-                // Darphane Katsayıları
+                const h_alis = formati_duzelt(veri["gram-altin"]["Buying"]);
+                const h_satis = formati_duzelt(veri["gram-altin"]["Selling"]);
+                const usd_alis = formati_duzelt(veri["USD"]["Buying"]);
+                const usd_satis = formati_duzelt(veri["USD"]["Selling"]);
+                const eur_alis = formati_duzelt(veri["EUR"]["Buying"]);
+                const eur_satis = formati_duzelt(veri["EUR"]["Selling"]);
+
                 const K_22 = 0.916, K_CEYREK = 1.605, K_YARIM = 3.21, K_TAM = 6.42, K_ATA = 6.61;
 
-                // İstemci Tarafı Matematiksel Motor
                 const islenmis = {
                     "HAS ALTIN": { alis: h_alis - 5, satis: h_satis },
                     "GRAM ALTIN": { alis: h_alis - 10, satis: h_satis },
@@ -261,11 +156,9 @@
                     "EURO": { alis: eur_alis - 0.05, satis: eur_satis }
                 };
 
-                // Tabloyu Çizdirme
                 let tabloHtml = '';
                 for (const [isim, deger] of Object.entries(islenmis)) {
                     let farkHtml = farkHesapla(isim, deger.satis);
-                    
                     tabloHtml += `
                         <tr>
                             <td class="product-cell">
@@ -279,22 +172,17 @@
                         </tr>
                     `;
                 }
-                
                 document.getElementById('price-body').innerHTML = tabloHtml;
-
             } catch (error) {
-                console.error("Veri bekleniyor...", error);
+                console.error("Veri akışı bekleniyor...", error);
             }
         }
 
         sistemiGuncelle();
-        setInterval(sistemiGuncelle, 2000); // 2 saniyede bir doğrudan kullanıcının cihazından günceller
+        setInterval(sistemiGuncelle, 2000);
 
-        // PWA Kurulum Kodları
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log("Mobil Uygulama Motoru Aktif!"))
-                .catch(err => console.error("PWA Hatası:", err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
         }
     </script>
 </body>
