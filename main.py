@@ -35,8 +35,8 @@ K_ATA = 6.61
 
 
 def ana_verileri_cek():
-    # Engelleme yapmayan, geliştirici dostu GenelPara API altyapısı
-    url = "https://api.genelpara.com/embed/altin.json"
+    # Sunucu dostu ve engelleme yapmayan Truncgil API
+    url = "https://finans.truncgil.com/today.json"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
@@ -48,26 +48,30 @@ def ana_verileri_cek():
     }
 
     try:
-        res = requests.get(url, headers=headers, timeout=5).json()
+        res = requests.get(url, headers=headers, timeout=8).json()
 
-        if "GA" in res:
-            # GenelPara'da GA (Gram Altın), 24 ayar has altın fiyatını temsil eder
-            ham_veri["HAS"]["alis"] = float(res["GA"]["alis"])
-            ham_veri["HAS"]["satis"] = float(res["GA"]["satis"])
+        # Truncgil API'de binlik ayırıcı nokta (.), ondalık ayırıcı virgül (,) olarak gelir.
+        # Hesaplama yapabilmek için formatı düzeltiyoruz.
+        def formati_duzelt(deger):
+            return float(deger.replace(".", "").replace(",", "."))
+
+        if "gram-altin" in res:
+            ham_veri["HAS"]["alis"] = formati_duzelt(res["gram-altin"]["Buying"])
+            ham_veri["HAS"]["satis"] = formati_duzelt(res["gram-altin"]["Selling"])
 
         if "USD" in res:
-            ham_veri["USD"]["alis"] = float(res["USD"]["alis"])
-            ham_veri["USD"]["satis"] = float(res["USD"]["satis"])
+            ham_veri["USD"]["alis"] = formati_duzelt(res["USD"]["Buying"])
+            ham_veri["USD"]["satis"] = formati_duzelt(res["USD"]["Selling"])
 
         if "EUR" in res:
-            ham_veri["EUR"]["alis"] = float(res["EUR"]["alis"])
-            ham_veri["EUR"]["satis"] = float(res["EUR"]["satis"])
+            ham_veri["EUR"]["alis"] = formati_duzelt(res["EUR"]["Buying"])
+            ham_veri["EUR"]["satis"] = formati_duzelt(res["EUR"]["Selling"])
 
     except Exception as e:
         print("API Veri Akışı Hatası:", e)
-        # Hata durumunda belli olması için geçici değerler
+        # Hata durumunda belli olması için geçici değerler (3500)
         ham_veri = {
-            "HAS": {"alis": 3000.0, "satis": 3000.0},
+            "HAS": {"alis": 3500.0, "satis": 3500.0},
             "USD": {"alis": 34.00, "satis": 34.00},
             "EUR": {"alis": 37.00, "satis": 37.00},
         }
@@ -151,7 +155,7 @@ def matematiksel_motor():
 def guncel_fiyatlari_getir():
     return {
         "magaza": "Sedef Kuyumculuk",
-        "altyapi": "Kapalıçarşı Doğrudan Akış (GenelPara)",
+        "altyapi": "Kapalıçarşı Doğrudan Akış (Truncgil)",
         "kategoriler": matematiksel_motor(),
     }
 
