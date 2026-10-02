@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sedef Kuyumculuk - Canlı Piyasalar</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+        
+        /* Antrasit Koyu Gri Arka Plan */
+        body { background-color: #1a1b1e; color: #e4e5e8; }
+        
+        /* Üst Menü (Navbar) - Biraz daha açık antrasit */
+        .navbar { 
+            background-color: #25262b; 
+            border-bottom: 1px solid #141517;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-container { display: flex; align-items: center; gap: 18px; }
+        .logo-container img { height: 75px; } 
+        
+        /* Yan yana ve aynı renk Logo Metni */
+        .logo-text { font-size: 28px; font-weight: 700; color: #c4a35a; letter-spacing: 1px; }
+        
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { 
+            text-decoration: none; 
+            color: #b0b3b8; 
+            font-size: 13px; 
+            font-weight: 700; 
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #c4a35a; }
+        
+        /* Ana İçerik Konteyneri */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            display: flex;
+            gap: 20px;
+            padding: 0 20px;
+        }
+        
+        /* Sol Tablo Alanı - Antrasit */
+        .table-section {
+            flex: 2.5;
+            background-color: #25262b;
+            border: 1px solid #373a40;
+            border-radius: 6px;
+            padding: 20px 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .table-header {
+            text-align: center;
+            color: #c4a35a;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        
+        table { width: 100%; border-collapse: collapse; }
+        
+        thead th {
+            color: #909296;
+            font-size: 12px;
+            font-weight: 400;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #373a40;
+            text-align: center;
+        }
+        thead th:first-child { text-align: left; }
+        
+        tbody tr { border-bottom: 1px solid #373a40; transition: background-color 0.2s; }
+        tbody tr:hover { background-color: #2c2e33; }
+        
+        tbody td { padding: 12px 0; text-align: center; font-size: 16px; font-weight: 500; color: #e4e5e8; }
+        
+        /* Ürün İsimleri Hücresi */
+        .product-cell { text-align: left; }
+        .product-name { font-weight: 700; font-size: 14px; color: #ffffff; text-transform: uppercase; }
+        .product-sub { font-weight: 400; font-size: 11px; color: #909296; text-transform: uppercase; margin-top: 3px; }
+        
+        /* Renkler ve Yön Okları */
+        .down-text { color: #fa5252; }
+        .up-text { color: #40c057; }
+        .neutral-text { color: #909296; }
+        
+        .icon-cell { color: #909296; font-size: 18px; cursor: pointer; }
+
+        /* Sağ Banner Alanı */
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .banner {
+            width: 100%;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .banner-1 {
+            background: #141517;
+            height: 120px;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            background-image: linear-gradient(45deg, #141517 25%, #1a1b1e 25%, #1a1b1e 50%, #141517 50%, #141517 75%, #1a1b1e 75%, #1a1b1e 100%);
+            background-size: 20px 20px;
+            border: 1px solid #373a40;
+        }
+        
+        .banner-2 {
+            background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 28px;
+            font-weight: 900;
+            text-align: center;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid #c4a35a;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo-container">
+            <img src="logo.png" alt="Sedef Kuyumculuk" onerror="this.style.display='none'">
+            <div class="logo-text">SEDEF KUYUMCULUK</div>
+        </div>
+        <div class="nav-links">
+            <a href="#">ANASAYFA</a>
+            <a href="#">HAKKIMIZDA</a>
+            <a href="#">ÜRÜNLER</a>
+            <a href="#">CANLI PİYASALAR</a>
+            <a href="#">İLETİŞİM</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="table-section">
+            <div class="table-header">ALTIN FİYATLARI</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th id="clock-header">00:00:00</th>
+                        <th>Alış</th>
+                        <th>Satış</th>
+                        <th>Fark</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="price-body">
+                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #909296;">Veriler Yükleniyor...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="sidebar">
+            <div class="banner banner-1">
+                Canlı Piyasalar
+            </div>
+            <div class="banner banner-2">
+                FINE GOLD<br>999.9
+            </div>
+        </div>
+    </div>
+
+    <script>
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock-header').innerText = now.toLocaleTimeString('tr-TR', { hour12: false });
+        }, 1000);
+
+        let oncekiFiyatlar = {};
+
+        function formatla(deger) {
+            return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(deger);
+        }
+
+        function farkHesapla(isim, yeniSatis) {
+            if (!oncekiFiyatlar[isim]) {
+                oncekiFiyatlar[isim] = yeniSatis;
+                return '<span class="neutral-text">-</span>';
+            }
+            
+            const eskiSatis = oncekiFiyatlar[isim];
+            oncekiFiyatlar[isim] = yeniSatis;
+            
+            if (yeniSatis === eskiSatis) return '<span class="neutral-text">-</span>';
+            
+            const yuzde = (((yeniSatis - eskiSatis) / eskiSatis) * 100).toFixed(2);
+            
+            if (yeniSatis > eskiSatis) {
+                return `<span class="up-text">↑ %${Math.abs(yuzde)}</span>`;
+            } else {
+                return `<span class="down-text">↓ %-${Math.abs(yuzde)}</span>`;
+            }
+        }
+
+        async function sistemiGuncelle() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/guncel-fiyatlar');
+                const data = await response.json();
+                const kat = data.kategoriler;
+
+                let tabloHtml = '';
+                const birlesikListe = { ...kat.ozet, ...kat.altin, ...kat.doviz };
+
+                for (const [isim, deger] of Object.entries(birlesikListe)) {
+                    let farkHtml = farkHesapla(isim, deger.satis);
+                    
+                    tabloHtml += `
+                        <tr>
+                            <td class="product-cell">
+                                <div class="product-name">${isim}</div>
+                                <div class="product-sub">${isim}</div>
+                            </td>
+                            <td>${formatla(deger.alis)}</td>
+                            <td>${formatla(deger.satis)}</td>
+                            <td>${farkHtml}</td>
+                            <td class="icon-cell">📊</td>
+                        </tr>
+                    `;
+                }
+                
+                document.getElementById('price-body').innerHTML = tabloHtml;
+
+            } catch (error) {
+                console.error("Veri bekleniyor...");
+            }
+        }
+
+        sistemiGuncelle();
+        setInterval(sistemiGuncelle, 2000);
+    </script>
+</body>
+</html>
