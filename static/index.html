@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sedef Kuyumculuk - Canlı Piyasalar</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1b1e">
+    <link rel="apple-touch-icon" href="logo.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         
@@ -250,6 +253,12 @@
 
         sistemiGuncelle();
         setInterval(sistemiGuncelle, 2000);
+        // PWA Kurulum Kodları
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log("Mobil Uygulama Motoru Aktif!"))
+                .catch(err => console.error("PWA Hatası:", err));
+        }
     </script>
 </body>
 </html>
