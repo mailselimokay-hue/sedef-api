@@ -35,22 +35,20 @@ son_cekilen_veri = None
 son_cekim_zamani = 0
 
 
-# VİRGÜL VE NOKTA KARMAŞASINI ÇÖZEN YENİ FONKSİYON
 def guvenli_float(deger):
     try:
-        if isinstance(deger, str):
-            # Eğer hem nokta hem virgül varsa (Örn: 6,550.25 veya 6.550,25)
-            if "," in deger and "." in deger:
-                # Hangisi daha sağdaysa o kuruş (ondalık) ayırıcıdır
-                if deger.rfind(",") > deger.rfind("."):
-                    # TR formatı: 6.550,25
-                    deger = deger.replace(".", "").replace(",", ".")
-                else:
-                    # US formatı: 6,550.25 (CollectAPI'nin şu an gönderdiği)
-                    deger = deger.replace(",", "")
-            elif "," in deger:
-                # Sadece virgül varsa TR formatıdır
-                deger = deger.replace(",", ".")
+        if isinstance(deger, (int, float)):
+            return float(deger)
+
+        deger = str(deger).strip()
+        if "," in deger and "." in deger:
+            if deger.rfind(",") > deger.rfind("."):
+                deger = deger.replace(".", "").replace(",", ".")
+            else:
+                deger = deger.replace(",", "")
+        elif "," in deger:
+            deger = deger.replace(",", ".")
+
         return float(deger)
     except:
         return 0.0
@@ -87,8 +85,19 @@ def ana_verileri_cek():
         if veri_gold.get("success"):
             for item in veri_gold["result"]:
                 if item["name"] == "Gram Altın":
-                    ham_veri["HAS"]["alis"] = guvenli_float(item["buying"])
-                    ham_veri["HAS"]["satis"] = guvenli_float(item["selling"])
+                    alis = guvenli_float(item["buying"])
+                    satis = guvenli_float(item["selling"])
+
+                    # AKILLI HATA DÜZELTME: Eğer CollectAPI "6.530" şeklinde binlik ayracını nokta ile
+                    # gönderirse Python bunu 6.53 TL sanır. Gram altın 100 TL'den küçük olamayacağı için
+                    # otomatik olarak 1000 ile çarparak gerçek fiyata (6530) çeviriyoruz.
+                    if alis > 0 and alis < 100:
+                        alis *= 1000
+                    if satis > 0 and satis < 100:
+                        satis *= 1000
+
+                    ham_veri["HAS"]["alis"] = alis
+                    ham_veri["HAS"]["satis"] = satis
                     break
 
         res_cur = requests.get(
