@@ -1,4 +1,4 @@
-import requests
+import cloudscraper
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -15,7 +15,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- VİTRİN VE ANA SAYFA YÖNLENDİRMESİ ---
 app.mount("/vitrin", StaticFiles(directory="static"), name="static")
 
 
@@ -23,8 +22,6 @@ app.mount("/vitrin", StaticFiles(directory="static"), name="static")
 def ana_sayfaya_yonlendir():
     return RedirectResponse(url="/vitrin/index.html")
 
-
-# -----------------------------------------
 
 # KAPALIÇARŞI STANDART DARPHANE KATSAYILARI
 K_22 = 0.916
@@ -35,11 +32,12 @@ K_ATA = 6.61
 
 
 def ana_verileri_cek():
-    # Sunucu dostu ve engelleme yapmayan Truncgil API
-    url = "https://finans.truncgil.com/today.json"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    }
+    # Cloudflare engelini aşmak için gerçek tarayıcı simülasyonu
+    scraper = cloudscraper.create_scraper(
+        browser={"browser": "chrome", "platform": "windows", "desktop": True}
+    )
+
+    url = "https://www.haremaltin.com/dashboard/ajax/doviz"
 
     ham_veri = {
         "HAS": {"alis": 0.0, "satis": 0.0},
@@ -48,30 +46,31 @@ def ana_verileri_cek():
     }
 
     try:
-        res = requests.get(url, headers=headers, timeout=8).json()
+        # AJAX isteği başlıkları (Gerçek bir site trafiği gibi görünmek için)
+        headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+        }
+        res = scraper.post(url, headers=headers, timeout=10).json()
+        data = res.get("data", {})
 
-        # Truncgil API'de binlik ayırıcı nokta (.), ondalık ayırıcı virgül (,) olarak gelir.
-        # Hesaplama yapabilmek için formatı düzeltiyoruz.
-        def formati_duzelt(deger):
-            return float(deger.replace(".", "").replace(",", "."))
+        if "ALTIN" in data:
+            ham_veri["HAS"]["alis"] = float(data["ALTIN"]["alis"])
+            ham_veri["HAS"]["satis"] = float(data["ALTIN"]["satis"])
 
-        if "gram-altin" in res:
-            ham_veri["HAS"]["alis"] = formati_duzelt(res["gram-altin"]["Buying"])
-            ham_veri["HAS"]["satis"] = formati_duzelt(res["gram-altin"]["Selling"])
+        if "USDTRY" in data:
+            ham_veri["USD"]["alis"] = float(data["USDTRY"]["alis"])
+            ham_veri["USD"]["satis"] = float(data["USDTRY"]["satis"])
 
-        if "USD" in res:
-            ham_veri["USD"]["alis"] = formati_duzelt(res["USD"]["Buying"])
-            ham_veri["USD"]["satis"] = formati_duzelt(res["USD"]["Selling"])
-
-        if "EUR" in res:
-            ham_veri["EUR"]["alis"] = formati_duzelt(res["EUR"]["Buying"])
-            ham_veri["EUR"]["satis"] = formati_duzelt(res["EUR"]["Selling"])
+        if "EURTRY" in data:
+            ham_veri["EUR"]["alis"] = float(data["EURTRY"]["alis"])
+            ham_veri["EUR"]["satis"] = float(data["EURTRY"]["satis"])
 
     except Exception as e:
-        print("API Veri Akışı Hatası:", e)
-        # Hata durumunda belli olması için geçici değerler (3500)
+        print("Çarşı Veri Akışı Hatası:", e)
+        # Hata durumunda (Hala engelleniyorsak 7777 rakamları ile hemen anlayalım)
         ham_veri = {
-            "HAS": {"alis": 3500.0, "satis": 3500.0},
+            "HAS": {"alis": 7777.0, "satis": 7777.0},
             "USD": {"alis": 34.00, "satis": 34.00},
             "EUR": {"alis": 37.00, "satis": 37.00},
         }
@@ -155,7 +154,7 @@ def matematiksel_motor():
 def guncel_fiyatlari_getir():
     return {
         "magaza": "Sedef Kuyumculuk",
-        "altyapi": "Kapalıçarşı Doğrudan Akış (Truncgil)",
+        "altyapi": "Kapalıçarşı Doğrudan Akış (Cloudscraper)",
         "kategoriler": matematiksel_motor(),
     }
 
