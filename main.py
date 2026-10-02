@@ -35,10 +35,10 @@ K_ATA = 6.61
 
 
 def ana_verileri_cek():
-    url = "https://www.haremaltin.com/dashboard/ajax/doviz"
+    # Engelleme yapmayan, geliştirici dostu GenelPara API altyapısı
+    url = "https://api.genelpara.com/embed/altin.json"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "X-Requested-With": "XMLHttpRequest",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
 
     ham_veri = {
@@ -48,28 +48,28 @@ def ana_verileri_cek():
     }
 
     try:
-        res = requests.post(url, headers=headers, timeout=5).json()
-        data = res.get("data", {})
+        res = requests.get(url, headers=headers, timeout=5).json()
 
-        if "ALTIN" in data:
-            ham_veri["HAS"]["alis"] = float(data["ALTIN"]["alis"])
-            ham_veri["HAS"]["satis"] = float(data["ALTIN"]["satis"])
+        if "GA" in res:
+            # GenelPara'da GA (Gram Altın), 24 ayar has altın fiyatını temsil eder
+            ham_veri["HAS"]["alis"] = float(res["GA"]["alis"])
+            ham_veri["HAS"]["satis"] = float(res["GA"]["satis"])
 
-        if "USDTRY" in data:
-            ham_veri["USD"]["alis"] = float(data["USDTRY"]["alis"])
-            ham_veri["USD"]["satis"] = float(data["USDTRY"]["satis"])
+        if "USD" in res:
+            ham_veri["USD"]["alis"] = float(res["USD"]["alis"])
+            ham_veri["USD"]["satis"] = float(res["USD"]["satis"])
 
-        if "EURTRY" in data:
-            ham_veri["EUR"]["alis"] = float(data["EURTRY"]["alis"])
-            ham_veri["EUR"]["satis"] = float(data["EURTRY"]["satis"])
+        if "EUR" in res:
+            ham_veri["EUR"]["alis"] = float(res["EUR"]["alis"])
+            ham_veri["EUR"]["satis"] = float(res["EUR"]["satis"])
 
     except Exception as e:
-        print("Çarşı Veri Akışı Hatası:", e)
-        # Yedek veriler
+        print("API Veri Akışı Hatası:", e)
+        # Hata durumunda belli olması için geçici değerler
         ham_veri = {
-            "HAS": {"alis": 6545.0, "satis": 6585.0},
-            "USD": {"alis": 34.20, "satis": 34.25},
-            "EUR": {"alis": 37.80, "satis": 37.90},
+            "HAS": {"alis": 3000.0, "satis": 3000.0},
+            "USD": {"alis": 34.00, "satis": 34.00},
+            "EUR": {"alis": 37.00, "satis": 37.00},
         }
 
     return ham_veri
@@ -151,7 +151,7 @@ def matematiksel_motor():
 def guncel_fiyatlari_getir():
     return {
         "magaza": "Sedef Kuyumculuk",
-        "altyapi": "Kapalıçarşı Doğrudan Akış",
+        "altyapi": "Kapalıçarşı Doğrudan Akış (GenelPara)",
         "kategoriler": matematiksel_motor(),
     }
 
