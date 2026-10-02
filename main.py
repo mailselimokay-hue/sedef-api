@@ -1,6 +1,8 @@
 import requests
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 import uvicorn
 
 app = FastAPI(title="Sedef Kuyumculuk - Kapalıçarşı Motoru")
@@ -13,6 +15,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- VİTRİN VE ANA SAYFA YÖNLENDİRMESİ ---
+app.mount("/vitrin", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/")
+def ana_sayfaya_yonlendir():
+    return RedirectResponse(url="/vitrin/index.html")
+
+
+# -----------------------------------------
+
 # KAPALIÇARŞI STANDART DARPHANE KATSAYILARI
 K_22 = 0.916
 K_CEYREK = 1.605
@@ -22,7 +35,6 @@ K_ATA = 6.61
 
 
 def ana_verileri_cek():
-    # CollectAPI yerine doğrudan Harem Altın'ın canlı web akışı kullanılıyor
     url = "https://www.haremaltin.com/dashboard/ajax/doviz"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -39,7 +51,6 @@ def ana_verileri_cek():
         res = requests.post(url, headers=headers, timeout=5).json()
         data = res.get("data", {})
 
-        # Harem'den fiziki Has Altın ve Döviz çekiliyor
         if "ALTIN" in data:
             ham_veri["HAS"]["alis"] = float(data["ALTIN"]["alis"])
             ham_veri["HAS"]["satis"] = float(data["ALTIN"]["satis"])
@@ -54,7 +65,7 @@ def ana_verileri_cek():
 
     except Exception as e:
         print("Çarşı Veri Akışı Hatası:", e)
-        # Yedek Veriler
+        # Yedek veriler
         ham_veri = {
             "HAS": {"alis": 6545.0, "satis": 6585.0},
             "USD": {"alis": 34.20, "satis": 34.25},
@@ -80,8 +91,6 @@ def matematiksel_motor():
 
     islenmis = {"ozet": {}, "altin": {}, "eski_altin": {}, "doviz": {}}
 
-    # SATIŞLAR KAPALIÇARŞI İLE 1:1 AYNI (MİNİMUM MARJ STRATEJİSİ)
-
     islenmis["ozet"]["HAS ALTIN"] = {"alis": h_alis - 5, "satis": h_satis}
     islenmis["ozet"]["GRAM ALTIN"] = {
         "alis": maliyet["GRAM"]["alis"] - 10,
@@ -92,7 +101,6 @@ def matematiksel_motor():
         "alis": maliyet["22_AYAR"]["alis"] - 25,
         "satis": maliyet["22_AYAR"]["satis"],
     }
-
     islenmis["altin"]["YENİ ÇEYREK"] = {
         "alis": maliyet["CEYREK"]["alis"] - 35,
         "satis": maliyet["CEYREK"]["satis"],

@@ -220,7 +220,8 @@
 
         async function sistemiGuncelle() {
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/guncel-fiyatlar');
+                // BURASI GÜNCELLENDİ
+                const response = await fetch('/api/guncel-fiyatlar');
                 const data = await response.json();
                 const kat = data.kategoriler;
 
