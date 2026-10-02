@@ -1,4 +1,5 @@
 import requests
+import time
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -15,7 +16,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- VİTRİN VE ANA SAYFA YÖNLENDİRMESİ ---
 app.mount("/vitrin", StaticFiles(directory="static"), name="static")
 
 
@@ -24,21 +24,44 @@ def ana_sayfaya_yonlendir():
     return RedirectResponse(url="/vitrin/index.html")
 
 
-# -----------------------------------------
-
-# KAPALIÇARŞI STANDART DARPHANE KATSAYILARI
 K_22 = 0.916
 K_CEYREK = 1.605
 K_YARIM = 3.21
 K_TAM = 6.42
 K_ATA = 6.61
 
+# ÖNBELLEK (CACHE) SİSTEMİ - API Limitini Korumak İçin
+CACHE_SURESI = 60  # Veriler arka planda 60 saniyede bir çekilir
+son_cekilen_veri = None
+son_cekim_zamani = 0
+
+
+def guvenli_float(deger):
+    try:
+        if isinstance(deger, str):
+            if "," in deger and "." in deger:
+                deger = deger.replace(".", "").replace(",", ".")
+            elif "," in deger:
+                deger = deger.replace(",", ".")
+        return float(deger)
+    except:
+        return 0.0
+
 
 def ana_verileri_cek():
-    # Render'ın IP engelini aşmak için AllOrigins aracı servisini (Proxy) kullanıyoruz
-    url = (
-        "https://api.allorigins.win/raw?url=https://api.genelpara.com/embed/altin.json"
-    )
+    global son_cekilen_veri, son_cekim_zamani
+    guncel_zaman = time.time()
+
+    if (
+        son_cekilen_veri is not None
+        and (guncel_zaman - son_cekim_zamani) < CACHE_SURESI
+    ):
+        return son_cekilen_veri
+
+    headers = {
+        "content-type": "application/json",
+        "authorization": "apikey 1WBfKZ00tR3RyuVoOYzTZC:1WM34vX7arahMT36SlPAUr",
+    }
 
     ham_veri = {
         "HAS": {"alis": 0.0, "satis": 0.0},
@@ -47,30 +70,45 @@ def ana_verileri_cek():
     }
 
     try:
-        # Proxy kullandığımız için ekstra başlık (header) göndermemize gerek yok
-        res = requests.get(url, timeout=10).json()
+        # CollectAPI Altın Çekimi
+        res_gold = requests.get(
+            "https://api.collectapi.com/economy/goldPrice", headers=headers, timeout=10
+        ).json()
+        if res_gold.get("success"):
+            for item in res_gold["result"]:
+                if item["name"] == "Gram Altın":
+                    ham_veri["HAS"]["alis"] = guvenli_float(item["buying"])
+                    ham_veri["HAS"]["satis"] = guvenli_float(item["selling"])
+                    break
 
-        if "GA" in res:
-            # GenelPara'da GA (Gram Altın), 24 ayar has altın fiyatını temsil eder
-            ham_veri["HAS"]["alis"] = float(res["GA"]["alis"])
-            ham_veri["HAS"]["satis"] = float(res["GA"]["satis"])
+        # CollectAPI Döviz Çekimi
+        res_cur = requests.get(
+            "https://api.collectapi.com/economy/allCurrency",
+            headers=headers,
+            timeout=10,
+        ).json()
+        if res_cur.get("success"):
+            for item in res_cur["result"]:
+                if item["code"] == "USD":
+                    ham_veri["USD"]["alis"] = guvenli_float(item["buying"])
+                    ham_veri["USD"]["satis"] = guvenli_float(item["selling"])
+                elif item["code"] == "EUR":
+                    ham_veri["EUR"]["alis"] = guvenli_float(item["buying"])
+                    ham_veri["EUR"]["satis"] = guvenli_float(item["selling"])
 
-        if "USD" in res:
-            ham_veri["USD"]["alis"] = float(res["USD"]["alis"])
-            ham_veri["USD"]["satis"] = float(res["USD"]["satis"])
-
-        if "EUR" in res:
-            ham_veri["EUR"]["alis"] = float(res["EUR"]["alis"])
-            ham_veri["EUR"]["satis"] = float(res["EUR"]["satis"])
+        son_cekilen_veri = ham_veri
+        son_cekim_zamani = guncel_zaman
 
     except Exception as e:
-        print("API Veri Akışı Hatası:", e)
-        # Proxy de takılırsa ekranda 8888 göreceğiz
-        ham_veri = {
-            "HAS": {"alis": 8888.0, "satis": 8888.0},
-            "USD": {"alis": 34.00, "satis": 34.00},
-            "EUR": {"alis": 37.00, "satis": 37.00},
-        }
+        print("CollectAPI VIP Hatası:", e)
+        if son_cekilen_veri is not None:
+            return son_cekilen_veri
+        else:
+            ham_veri = {
+                "HAS": {"alis": 9999.0, "satis": 9999.0},
+                "USD": {"alis": 34.00, "satis": 34.00},
+                "EUR": {"alis": 37.00, "satis": 37.00},
+            }
 
     return ham_veri
 
@@ -118,23 +156,6 @@ def matematiksel_motor():
         "satis": maliyet["ATA"]["satis"],
     }
 
-    islenmis["eski_altin"]["ESKİ ÇEYREK"] = {
-        "alis": islenmis["altin"]["YENİ ÇEYREK"]["alis"] - 30,
-        "satis": islenmis["altin"]["YENİ ÇEYREK"]["satis"] - 30,
-    }
-    islenmis["eski_altin"]["ESKİ YARIM"] = {
-        "alis": islenmis["altin"]["YENİ YARIM"]["alis"] - 60,
-        "satis": islenmis["altin"]["YENİ YARIM"]["satis"] - 60,
-    }
-    islenmis["eski_altin"]["ESKİ TAM"] = {
-        "alis": islenmis["altin"]["YENİ TAM"]["alis"] - 120,
-        "satis": islenmis["altin"]["YENİ TAM"]["satis"] - 120,
-    }
-    islenmis["eski_altin"]["ESKİ ATA"] = {
-        "alis": islenmis["altin"]["YENİ ATA"]["alis"] - 120,
-        "satis": islenmis["altin"]["YENİ ATA"]["satis"] - 120,
-    }
-
     islenmis["doviz"]["Dolar"] = {
         "alis": baz["USD"]["alis"] - 0.05,
         "satis": baz["USD"]["satis"],
@@ -151,7 +172,7 @@ def matematiksel_motor():
 def guncel_fiyatlari_getir():
     return {
         "magaza": "Sedef Kuyumculuk",
-        "altyapi": "Proxy Üzerinden Canlı Akış",
+        "altyapi": "CollectAPI Kurumsal VIP",
         "kategoriler": matematiksel_motor(),
     }
 

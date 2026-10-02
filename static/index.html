@@ -6,7 +6,6 @@
     <title>Sedef Kuyumculuk - Canlı Piyasalar</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1b1e">
-    <link rel="apple-touch-icon" href="logo.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
@@ -16,16 +15,14 @@
         .logo-container img { height: 75px; } 
         .logo-text { font-size: 28px; font-weight: 700; color: #c4a35a; letter-spacing: 1px; }
         .nav-links { display: flex; gap: 30px; }
-        .nav-links a { text-decoration: none; color: #b0b3b8; font-size: 13px; font-weight: 700; text-transform: uppercase; transition: color 0.2s; }
-        .nav-links a:hover { color: #c4a35a; }
+        .nav-links a { text-decoration: none; color: #b0b3b8; font-size: 13px; font-weight: 700; text-transform: uppercase; }
         .container { max-width: 1200px; margin: 30px auto; display: flex; gap: 20px; padding: 0 20px; }
         .table-section { flex: 2.5; background-color: #25262b; border: 1px solid #373a40; border-radius: 6px; padding: 20px 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .table-header { text-align: center; color: #c4a35a; font-size: 18px; font-weight: 500; margin-bottom: 20px; letter-spacing: 1px; }
         table { width: 100%; border-collapse: collapse; }
         thead th { color: #909296; font-size: 12px; font-weight: 400; padding-bottom: 15px; border-bottom: 1px solid #373a40; text-align: center; }
         thead th:first-child { text-align: left; }
-        tbody tr { border-bottom: 1px solid #373a40; transition: background-color 0.2s; }
-        tbody tr:hover { background-color: #2c2e33; }
+        tbody tr { border-bottom: 1px solid #373a40; }
         tbody td { padding: 12px 0; text-align: center; font-size: 16px; font-weight: 500; color: #e4e5e8; }
         .product-cell { text-align: left; }
         .product-name { font-weight: 700; font-size: 14px; color: #ffffff; text-transform: uppercase; }
@@ -33,41 +30,21 @@
         .down-text { color: #fa5252; }
         .up-text { color: #40c057; }
         .neutral-text { color: #909296; }
-        .icon-cell { color: #909296; font-size: 18px; cursor: pointer; }
         .sidebar { flex: 1; display: flex; flex-direction: column; gap: 20px; }
         .banner { width: 100%; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .banner-1 { background: #141517; height: 120px; color: white; padding: 15px; font-weight: bold; background-image: linear-gradient(45deg, #141517 25%, #1a1b1e 25%, #1a1b1e 50%, #141517 50%, #141517 75%, #1a1b1e 75%, #1a1b1e 100%); background-size: 20px 20px; border: 1px solid #373a40; }
         .banner-2 { background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%); height: 250px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 28px; font-weight: 900; text-align: center; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #c4a35a; }
-        @media (max-width: 768px) {
-            .container { flex-direction: column; padding: 10px; margin: 10px auto; }
-            .navbar { padding: 15px; flex-direction: column; gap: 10px; }
-            .logo-container img { height: 50px; }
-            .logo-text { font-size: 20px; }
-            .nav-links { display: none; } 
-            .table-section { padding: 10px 5px; }
-            table { table-layout: fixed; width: 100%; }
-            tbody td { font-size: 13px; padding: 10px 2px; text-align: right; }
-            thead th { font-size: 11px; padding-bottom: 10px; text-align: right; }
-            .product-cell { text-align: left; width: 35%; }
-            thead th:first-child { text-align: left; }
-            .product-name { font-size: 11px; }
-            .product-sub { font-size: 9px; }
-            .icon-cell { display: none; } 
-        }
     </style>
 </head>
 <body>
     <div class="navbar">
         <div class="logo-container">
-            <img src="logo.png" alt="Sedef Kuyumculuk" onerror="this.style.display='none'">
             <div class="logo-text">SEDEF KUYUMCULUK</div>
         </div>
         <div class="nav-links">
             <a href="#">ANASAYFA</a>
-            <a href="#">HAKKIMIZDA</a>
             <a href="#">ÜRÜNLER</a>
             <a href="#">CANLI PİYASALAR</a>
-            <a href="#">İLETİŞİM</a>
         </div>
     </div>
     <div class="container">
@@ -80,11 +57,10 @@
                         <th>Alış</th>
                         <th>Satış</th>
                         <th>Fark</th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="price-body">
-                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #909296;">Piyasa Bağlantısı Aranıyor...</td></tr>
+                    <tr><td colspan="4" style="text-align:center; padding: 20px; color: #909296;">CollectAPI Kurumsal Veri Bekleniyor...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -95,8 +71,7 @@
     </div>
     <script>
         setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock-header').innerText = now.toLocaleTimeString('tr-TR', { hour12: false });
+            document.getElementById('clock-header').innerText = new Date().toLocaleTimeString('tr-TR', { hour12: false });
         }, 1000);
 
         let oncekiFiyatlar = {};
@@ -114,63 +89,20 @@
             oncekiFiyatlar[isim] = yeniSatis;
             if (yeniSatis === eskiSatis) return '<span class="neutral-text">-</span>';
             const yuzde = (((yeniSatis - eskiSatis) / eskiSatis) * 100).toFixed(2);
-            if (yeniSatis > eskiSatis) {
-                return `<span class="up-text">↑ %${Math.abs(yuzde)}</span>`;
-            } else {
-                return `<span class="down-text">↓ %-${Math.abs(yuzde)}</span>`;
-            }
-        }
-
-        // Çift Proxy Kontrolü
-        async function veriGetir() {
-            const hedefUrl = encodeURIComponent('https://api.genelpara.com/embed/altin.json');
-            const proxy1 = 'https://corsproxy.io/?' + hedefUrl;
-            const proxy2 = 'https://api.allorigins.win/raw?url=' + hedefUrl;
-
-            try {
-                // Önce 1. Proxy'yi dene
-                let res = await fetch(proxy1, { cache: "no-store" });
-                if (res.ok) {
-                    return await res.json();
-                }
-            } catch (e) {
-                console.log("Proxy 1 başarısız, Proxy 2'ye geçiliyor...");
-            }
-            
-            // Başarısız olursa 2. Proxy'yi dene
-            let res2 = await fetch(proxy2, { cache: "no-store" });
-            if (!res2.ok) throw new Error("İki proxy de engellendi.");
-            return await res2.json();
+            return yeniSatis > eskiSatis ? `<span class="up-text">↑ %${Math.abs(yuzde)}</span>` : `<span class="down-text">↓ %-${Math.abs(yuzde)}</span>`;
         }
 
         async function sistemiGuncelle() {
             try {
-                const veri = await veriGetir();
-
-                const h_alis = parseFloat(veri.GA.alis);
-                const h_satis = parseFloat(veri.GA.satis);
-                const usd_alis = parseFloat(veri.USD.alis);
-                const usd_satis = parseFloat(veri.USD.satis);
-                const eur_alis = parseFloat(veri.EUR.alis);
-                const eur_satis = parseFloat(veri.EUR.satis);
-
-                const K_22 = 0.916, K_CEYREK = 1.605, K_YARIM = 3.21, K_TAM = 6.42, K_ATA = 6.61;
-
-                const islenmis = {
-                    "HAS ALTIN": { alis: h_alis - 5, satis: h_satis },
-                    "GRAM ALTIN": { alis: h_alis - 10, satis: h_satis },
-                    "22 AYAR BİLEZİK": { alis: (h_alis * K_22) - 25, satis: h_satis * K_22 },
-                    "YENİ ÇEYREK": { alis: (h_alis * K_CEYREK) - 35, satis: h_satis * K_CEYREK },
-                    "YENİ YARIM": { alis: (h_alis * K_YARIM) - 70, satis: h_satis * K_YARIM },
-                    "YENİ TAM": { alis: (h_alis * K_TAM) - 140, satis: h_satis * K_TAM },
-                    "YENİ ATA": { alis: (h_alis * K_ATA) - 150, satis: h_satis * K_ATA },
-                    "DOLAR": { alis: usd_alis - 0.05, satis: usd_satis },
-                    "EURO": { alis: eur_alis - 0.05, satis: eur_satis }
-                };
+                // Veriyi doğrudan kendi güvenli arka planımızdan (main.py) alıyoruz
+                const response = await fetch('/api/guncel-fiyatlar');
+                const data = await response.json();
+                const kat = data.kategoriler;
 
                 let tabloHtml = '';
-                for (const [isim, deger] of Object.entries(islenmis)) {
-                    let farkHtml = farkHesapla(isim, deger.satis);
+                const birlesikListe = { ...kat.ozet, ...kat.altin, ...kat.doviz };
+
+                for (const [isim, deger] of Object.entries(birlesikListe)) {
                     tabloHtml += `
                         <tr>
                             <td class="product-cell">
@@ -179,24 +111,18 @@
                             </td>
                             <td>${formatla(deger.alis)}</td>
                             <td>${formatla(deger.satis)}</td>
-                            <td>${farkHtml}</td>
-                            <td class="icon-cell">📊</td>
+                            <td>${farkHesapla(isim, deger.satis)}</td>
                         </tr>
                     `;
                 }
                 document.getElementById('price-body').innerHTML = tabloHtml;
             } catch (error) {
-                console.error("Veri akışı hatası:", error);
-                document.getElementById('price-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: #fa5252;">Tarayıcınız piyasa verisine erişemedi. Sayfayı yenileyin.</td></tr>`;
+                console.error("Veri akışı bekleniyor...", error);
             }
         }
 
         sistemiGuncelle();
-        setInterval(sistemiGuncelle, 3000); // Yoğunluk yaratmamak için 3 saniyeye çıkarıldı
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
-        }
+        setInterval(sistemiGuncelle, 2000); 
     </script>
 </body>
 </html>
