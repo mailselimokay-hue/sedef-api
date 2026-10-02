@@ -12,10 +12,8 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
         
-        /* Antrasit Koyu Gri Arka Plan */
         body { background-color: #1a1b1e; color: #e4e5e8; }
         
-        /* Üst Menü (Navbar) - Biraz daha açık antrasit */
         .navbar { 
             background-color: #25262b; 
             border-bottom: 1px solid #141517;
@@ -28,7 +26,6 @@
         .logo-container { display: flex; align-items: center; gap: 18px; }
         .logo-container img { height: 75px; } 
         
-        /* Yan yana ve aynı renk Logo Metni */
         .logo-text { font-size: 28px; font-weight: 700; color: #c4a35a; letter-spacing: 1px; }
         
         .nav-links { display: flex; gap: 30px; }
@@ -42,7 +39,6 @@
         }
         .nav-links a:hover { color: #c4a35a; }
         
-        /* Ana İçerik Konteyneri */
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -51,7 +47,6 @@
             padding: 0 20px;
         }
         
-        /* Sol Tablo Alanı - Antrasit */
         .table-section {
             flex: 2.5;
             background-color: #25262b;
@@ -87,19 +82,16 @@
         
         tbody td { padding: 12px 0; text-align: center; font-size: 16px; font-weight: 500; color: #e4e5e8; }
         
-        /* Ürün İsimleri Hücresi */
         .product-cell { text-align: left; }
         .product-name { font-weight: 700; font-size: 14px; color: #ffffff; text-transform: uppercase; }
         .product-sub { font-weight: 400; font-size: 11px; color: #909296; text-transform: uppercase; margin-top: 3px; }
         
-        /* Renkler ve Yön Okları */
         .down-text { color: #fa5252; }
         .up-text { color: #40c057; }
         .neutral-text { color: #909296; }
         
         .icon-cell { color: #909296; font-size: 18px; cursor: pointer; }
 
-        /* Sağ Banner Alanı */
         .sidebar {
             flex: 1;
             display: flex;
@@ -139,6 +131,27 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             border: 1px solid #c4a35a;
         }
+
+        /* Mobil Ekran Düzeltmeleri */
+        @media (max-width: 768px) {
+            .container { flex-direction: column; padding: 10px; margin: 10px auto; }
+            .navbar { padding: 15px; flex-direction: column; gap: 10px; }
+            .logo-container img { height: 50px; }
+            .logo-text { font-size: 20px; }
+            .nav-links { display: none; } 
+            
+            .table-section { padding: 10px 5px; }
+            table { table-layout: fixed; width: 100%; }
+            tbody td { font-size: 13px; padding: 10px 2px; text-align: right; }
+            thead th { font-size: 11px; padding-bottom: 10px; text-align: right; }
+            
+            .product-cell { text-align: left; width: 35%; }
+            thead th:first-child { text-align: left; }
+            
+            .product-name { font-size: 11px; }
+            .product-sub { font-size: 9px; }
+            .icon-cell { display: none; } 
+        }
     </style>
 </head>
 <body>
@@ -171,7 +184,7 @@
                     </tr>
                 </thead>
                 <tbody id="price-body">
-                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #909296;">Veriler Yükleniyor...</td></tr>
+                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #909296;">Canlı Piyasa Bağlantısı Kuruluyor...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -220,15 +233,37 @@
 
         async function sistemiGuncelle() {
             try {
-                // BURASI GÜNCELLENDİ
-                const response = await fetch('/api/guncel-fiyatlar');
-                const data = await response.json();
-                const kat = data.kategoriler;
+                // Render sunucusunu aradan çıkarıp, doğrudan ziyaretçinin cihazı üzerinden veri çekiyoruz
+                const response = await fetch('https://api.genelpara.com/embed/altin.json');
+                const veri = await response.json();
 
+                // Ham API verileri
+                const h_alis = parseFloat(veri.GA.alis);
+                const h_satis = parseFloat(veri.GA.satis);
+                const usd_alis = parseFloat(veri.USD.alis);
+                const usd_satis = parseFloat(veri.USD.satis);
+                const eur_alis = parseFloat(veri.EUR.alis);
+                const eur_satis = parseFloat(veri.EUR.satis);
+
+                // Darphane Katsayıları
+                const K_22 = 0.916, K_CEYREK = 1.605, K_YARIM = 3.21, K_TAM = 6.42, K_ATA = 6.61;
+
+                // İstemci Tarafı Matematiksel Motor
+                const islenmis = {
+                    "HAS ALTIN": { alis: h_alis - 5, satis: h_satis },
+                    "GRAM ALTIN": { alis: h_alis - 10, satis: h_satis },
+                    "22 AYAR BİLEZİK": { alis: (h_alis * K_22) - 25, satis: h_satis * K_22 },
+                    "YENİ ÇEYREK": { alis: (h_alis * K_CEYREK) - 35, satis: h_satis * K_CEYREK },
+                    "YENİ YARIM": { alis: (h_alis * K_YARIM) - 70, satis: h_satis * K_YARIM },
+                    "YENİ TAM": { alis: (h_alis * K_TAM) - 140, satis: h_satis * K_TAM },
+                    "YENİ ATA": { alis: (h_alis * K_ATA) - 150, satis: h_satis * K_ATA },
+                    "DOLAR": { alis: usd_alis - 0.05, satis: usd_satis },
+                    "EURO": { alis: eur_alis - 0.05, satis: eur_satis }
+                };
+
+                // Tabloyu Çizdirme
                 let tabloHtml = '';
-                const birlesikListe = { ...kat.ozet, ...kat.altin, ...kat.doviz };
-
-                for (const [isim, deger] of Object.entries(birlesikListe)) {
+                for (const [isim, deger] of Object.entries(islenmis)) {
                     let farkHtml = farkHesapla(isim, deger.satis);
                     
                     tabloHtml += `
@@ -248,12 +283,13 @@
                 document.getElementById('price-body').innerHTML = tabloHtml;
 
             } catch (error) {
-                console.error("Veri bekleniyor...");
+                console.error("Veri bekleniyor...", error);
             }
         }
 
         sistemiGuncelle();
-        setInterval(sistemiGuncelle, 2000);
+        setInterval(sistemiGuncelle, 2000); // 2 saniyede bir doğrudan kullanıcının cihazından günceller
+
         // PWA Kurulum Kodları
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
