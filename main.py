@@ -30,8 +30,7 @@ K_YARIM = 3.21
 K_TAM = 6.42
 K_ATA = 6.61
 
-# ÖNBELLEK (CACHE) SİSTEMİ - API Limitini Korumak İçin
-CACHE_SURESI = 60  # Veriler arka planda 60 saniyede bir çekilir
+CACHE_SURESI = 60
 son_cekilen_veri = None
 son_cekim_zamani = 0
 
@@ -58,9 +57,11 @@ def ana_verileri_cek():
     ):
         return son_cekilen_veri
 
+    # EKSİK OLAN KİMLİK BİLGİSİ EKLENDİ (Güvenlik duvarını aşmak için)
     headers = {
         "content-type": "application/json",
-        "authorization": "apikey 1WBfKZ00tR3RyuVoOYzTZC:1WM34vX7arahMT36SlPAUr",
+        "authorization": "apikey 1WBfKZO0tR3RyuVoOYzTZC:1WM34vX7arahMT36SlPAUr",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     }
 
     ham_veri = {
@@ -70,25 +71,27 @@ def ana_verileri_cek():
     }
 
     try:
-        # CollectAPI Altın Çekimi
         res_gold = requests.get(
             "https://api.collectapi.com/economy/goldPrice", headers=headers, timeout=10
-        ).json()
-        if res_gold.get("success"):
-            for item in res_gold["result"]:
+        )
+        veri_gold = res_gold.json()
+
+        if veri_gold.get("success"):
+            for item in veri_gold["result"]:
                 if item["name"] == "Gram Altın":
                     ham_veri["HAS"]["alis"] = guvenli_float(item["buying"])
                     ham_veri["HAS"]["satis"] = guvenli_float(item["selling"])
                     break
 
-        # CollectAPI Döviz Çekimi
         res_cur = requests.get(
             "https://api.collectapi.com/economy/allCurrency",
             headers=headers,
             timeout=10,
-        ).json()
-        if res_cur.get("success"):
-            for item in res_cur["result"]:
+        )
+        veri_cur = res_cur.json()
+
+        if veri_cur.get("success"):
+            for item in veri_cur["result"]:
                 if item["code"] == "USD":
                     ham_veri["USD"]["alis"] = guvenli_float(item["buying"])
                     ham_veri["USD"]["satis"] = guvenli_float(item["selling"])
@@ -96,11 +99,12 @@ def ana_verileri_cek():
                     ham_veri["EUR"]["alis"] = guvenli_float(item["buying"])
                     ham_veri["EUR"]["satis"] = guvenli_float(item["selling"])
 
-        son_cekilen_veri = ham_veri
-        son_cekim_zamani = guncel_zaman
+        if ham_veri["HAS"]["alis"] > 0:
+            son_cekilen_veri = ham_veri
+            son_cekim_zamani = guncel_zaman
 
     except Exception as e:
-        print("CollectAPI VIP Hatası:", e)
+        print("API Baglanti Hatasi:", e)
         if son_cekilen_veri is not None:
             return son_cekilen_veri
         else:
