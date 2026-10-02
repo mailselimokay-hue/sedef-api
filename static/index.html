@@ -84,7 +84,7 @@
                     </tr>
                 </thead>
                 <tbody id="price-body">
-                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #909296;">Canlı Piyasaya Bağlanıyor...</td></tr>
+                    <tr><td colspan="5" style="text-align:center; padding: 20px; color: #909296;">Piyasa Bağlantısı Aranıyor...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -121,26 +121,38 @@
             }
         }
 
+        // Çift Proxy Kontrolü
+        async function veriGetir() {
+            const hedefUrl = encodeURIComponent('https://api.genelpara.com/embed/altin.json');
+            const proxy1 = 'https://corsproxy.io/?' + hedefUrl;
+            const proxy2 = 'https://api.allorigins.win/raw?url=' + hedefUrl;
+
+            try {
+                // Önce 1. Proxy'yi dene
+                let res = await fetch(proxy1, { cache: "no-store" });
+                if (res.ok) {
+                    return await res.json();
+                }
+            } catch (e) {
+                console.log("Proxy 1 başarısız, Proxy 2'ye geçiliyor...");
+            }
+            
+            // Başarısız olursa 2. Proxy'yi dene
+            let res2 = await fetch(proxy2, { cache: "no-store" });
+            if (!res2.ok) throw new Error("İki proxy de engellendi.");
+            return await res2.json();
+        }
+
         async function sistemiGuncelle() {
             try {
-                // CORS ve IP engelini aşan nihai zırhlı bağlantı
-                const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://finans.truncgil.com/today.json');
-                const response = await fetch(proxyUrl);
-                const proxyData = await response.json();
-                
-                // AllOrigins'den gelen string veriyi JSON'a çeviriyoruz
-                const veri = JSON.parse(proxyData.contents);
+                const veri = await veriGetir();
 
-                function formati_duzelt(deger) {
-                    return parseFloat(deger.replace(".", "").replace(",", "."));
-                }
-
-                const h_alis = formati_duzelt(veri["gram-altin"]["Buying"]);
-                const h_satis = formati_duzelt(veri["gram-altin"]["Selling"]);
-                const usd_alis = formati_duzelt(veri["USD"]["Buying"]);
-                const usd_satis = formati_duzelt(veri["USD"]["Selling"]);
-                const eur_alis = formati_duzelt(veri["EUR"]["Buying"]);
-                const eur_satis = formati_duzelt(veri["EUR"]["Selling"]);
+                const h_alis = parseFloat(veri.GA.alis);
+                const h_satis = parseFloat(veri.GA.satis);
+                const usd_alis = parseFloat(veri.USD.alis);
+                const usd_satis = parseFloat(veri.USD.satis);
+                const eur_alis = parseFloat(veri.EUR.alis);
+                const eur_satis = parseFloat(veri.EUR.satis);
 
                 const K_22 = 0.916, K_CEYREK = 1.605, K_YARIM = 3.21, K_TAM = 6.42, K_ATA = 6.61;
 
@@ -174,12 +186,13 @@
                 }
                 document.getElementById('price-body').innerHTML = tabloHtml;
             } catch (error) {
-                console.error("Veri akışı bekleniyor...", error);
+                console.error("Veri akışı hatası:", error);
+                document.getElementById('price-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: #fa5252;">Tarayıcınız piyasa verisine erişemedi. Sayfayı yenileyin.</td></tr>`;
             }
         }
 
         sistemiGuncelle();
-        setInterval(sistemiGuncelle, 2000);
+        setInterval(sistemiGuncelle, 3000); // Yoğunluk yaratmamak için 3 saniyeye çıkarıldı
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
