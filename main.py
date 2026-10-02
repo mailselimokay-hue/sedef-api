@@ -35,12 +35,21 @@ son_cekilen_veri = None
 son_cekim_zamani = 0
 
 
+# VİRGÜL VE NOKTA KARMAŞASINI ÇÖZEN YENİ FONKSİYON
 def guvenli_float(deger):
     try:
         if isinstance(deger, str):
+            # Eğer hem nokta hem virgül varsa (Örn: 6,550.25 veya 6.550,25)
             if "," in deger and "." in deger:
-                deger = deger.replace(".", "").replace(",", ".")
+                # Hangisi daha sağdaysa o kuruş (ondalık) ayırıcıdır
+                if deger.rfind(",") > deger.rfind("."):
+                    # TR formatı: 6.550,25
+                    deger = deger.replace(".", "").replace(",", ".")
+                else:
+                    # US formatı: 6,550.25 (CollectAPI'nin şu an gönderdiği)
+                    deger = deger.replace(",", "")
             elif "," in deger:
+                # Sadece virgül varsa TR formatıdır
                 deger = deger.replace(",", ".")
         return float(deger)
     except:
@@ -57,7 +66,6 @@ def ana_verileri_cek():
     ):
         return son_cekilen_veri
 
-    # EKSİK OLAN KİMLİK BİLGİSİ EKLENDİ (Güvenlik duvarını aşmak için)
     headers = {
         "content-type": "application/json",
         "authorization": "apikey 1WBfKZO0tR3RyuVoOYzTZC:1WM34vX7arahMT36SlPAUr",
