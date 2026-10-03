@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sedef Kuyumculuk - Canlı Fiyatlar</title>
+
+    <!-- WhatsApp, Instagram, Facebook için Link Paylaşım (Open Graph) Ayarları -->
+    <meta property="og:title" content="Sedef Kuyumculuk | Canlı Altın ve Döviz Piyasası">
+    <meta property="og:description" content="Fikirtepe Sedef Kuyumculuk - Anlık gram altın, çeyrek, yarım, tam, ata lira ve güncel döviz kurları alış/satış fiyatları.">
+    <meta property="og:image" content="https://borsa.sedefkuyumculuk.com/vitrin/logo.png">
+    <meta property="og:url" content="https://borsa.sedefkuyumculuk.com">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter ve Diğer Platformlar için -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sedef Kuyumculuk | Canlı Altın ve Döviz Piyasası">
+    <meta name="twitter:description" content="Fikirtepe Sedef Kuyumculuk - Anlık gram altın, çeyrek, yarım, tam, ata lira ve güncel döviz kurları.">
+    <meta name="twitter:image" content="https://borsa.sedefkuyumculuk.com/vitrin/logo.png">
+
     <style>
         :root {
             --bg-color: #0a0a0c;
@@ -13,8 +27,8 @@
             --text-muted: #8e8e93;
             --gold: #d4af37;
             --gold-light: #e6c875;
-            --anthracite: #8b8e91; /* Açık Antrasit - Siyah ekranda okunabilmesi için */
-            --anthracite-dark: #6c6f72; /* Koyu Antrasit - Alt başlık için */
+            --anthracite: #8b8e91; 
+            --anthracite-dark: #6c6f72; 
             --green: #34c759;
             --red: #ff3b30;
         }
@@ -31,7 +45,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
-            padding: 20px 8px; /* Mobilde kenar boşluklarını hafif daralttık */
+            padding: 20px 8px;
         }
 
         .container {
@@ -51,14 +65,14 @@
         .logo-container {
             display: flex;
             align-items: center;
-            gap: 12px; /* Logo ile yazı arasındaki boşluk */
+            gap: 12px;
         }
 
         .brand-logo {
-            width: 44px; /* Logonun ekrandaki boyutu */
+            width: 44px;
             height: 44px;
             object-fit: contain;
-            border-radius: 8px; /* Hafif oval köşeler */
+            border-radius: 8px;
         }
 
         .brand-text {
@@ -140,7 +154,7 @@
             color: var(--text-light);
             font-weight: 500;
             font-size: 13px;
-            white-space: nowrap; /* Metnin alt satıra inmesini engeller */
+            white-space: nowrap;
         }
 
         .fiyat-alis {
@@ -149,7 +163,7 @@
             color: var(--gold-light);
             font-family: monospace;
             font-size: 14px;
-            white-space: nowrap; /* Fiyatın alt satıra inmesini engeller */
+            white-space: nowrap;
         }
 
         .fiyat-satis {
@@ -181,7 +195,6 @@
         .ok.asagi { color: var(--red); }
         .ok.sabit { color: #555; }
 
-        /* Fiyat Güncelleme Animasyonu */
         @keyframes flash {
             0% { background-color: rgba(212, 175, 55, 0.15); }
             100% { background-color: var(--row-bg); }
@@ -194,10 +207,8 @@
 <body>
 
 <div class="container">
-    <!-- Üst Başlık, Logo ve Saat -->
     <div class="top-bar">
         <div class="logo-container">
-            <!-- logo.png dosyanızı buradan çekiyor -->
             <img src="logo.png" alt="Sedef Logo" class="brand-logo">
             <div class="brand-text">
                 <div class="logo-title">SEDEF</div>
@@ -207,7 +218,6 @@
         <div class="clock" id="clock">--:--:--</div>
     </div>
 
-    <!-- Ana Fiyat Kartı -->
     <div class="main-card">
         <div class="card-header-title">CANLI PİYASALAR</div>
         
@@ -224,17 +234,13 @@
 </div>
 
 <script>
-    // Muhasebe için arka planda olan ama ekranda görünmeyecek isimler
     const gizliKalemler = ["24 AYAR", "22 AYAR"];
-    
-    // Eski fiyatları hafızada tutacağımız obje
     let eskiFiyatlar = {};
 
     function formatiAyarla(sayi) {
         return parseFloat(sayi).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // Saati her saniye güncelle
     setInterval(() => {
         const simdi = new Date();
         document.getElementById('clock').innerText = simdi.toLocaleTimeString('tr-TR');
@@ -246,8 +252,6 @@
             const veri = await yanit.json();
             
             const listeDiv = document.getElementById('fiyat-listesi');
-            
-            // Verileri birleştir
             const birlesikListe = { ...veri.kategoriler.ozet, ...veri.kategoriler.altin, ...veri.kategoriler.doviz };
             
             let htmlIcerik = '';
@@ -255,7 +259,6 @@
             for (const [isim, kurlar] of Object.entries(birlesikListe)) {
                 if (gizliKalemler.includes(isim)) continue;
 
-                // Yön Okunu Belirleme (Yeşil/Kırmızı)
                 let okHtml = '<span class="ok sabit">-</span>';
                 let eskiSatis = eskiFiyatlar[isim]?.satis;
 
@@ -286,7 +289,6 @@
                     </div>
                 `;
 
-                // Hafızayı güncelle
                 if (!eskiFiyatlar[isim]) eskiFiyatlar[isim] = {};
                 eskiFiyatlar[isim].satis = kurlar.satis;
             }
