@@ -1,5 +1,5 @@
-import requests
 import time
+import cloudscraper
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -64,12 +64,6 @@ def ana_verileri_cek():
     ):
         return son_cekilen_veri
 
-    headers = {
-        "content-type": "application/json",
-        "authorization": "apikey 1WBfKZO0tR3RyuVoOYzTZC:1WM34vX7arahMT36SlPAUr",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    }
-
     ham_veri = {
         "HAS": {"alis": 0.0, "satis": 0.0},
         "USD": {"alis": 0.0, "satis": 0.0},
@@ -77,51 +71,38 @@ def ana_verileri_cek():
     }
 
     try:
-        res_gold = requests.get(
-            "https://api.collectapi.com/economy/goldPrice", headers=headers, timeout=10
-        )
-        veri_gold = res_gold.json()
-
-        if veri_gold.get("success"):
-            for item in veri_gold["result"]:
-                if item["name"] == "Gram Altın":
-                    alis = guvenli_float(item["buying"])
-                    satis = guvenli_float(item["selling"])
-
-                    # AKILLI HATA DÜZELTME: Eğer CollectAPI "6.530" şeklinde binlik ayracını nokta ile
-                    # gönderirse Python bunu 6.53 TL sanır. Gram altın 100 TL'den küçük olamayacağı için
-                    # otomatik olarak 1000 ile çarparak gerçek fiyata (6530) çeviriyoruz.
-                    if alis > 0 and alis < 100:
-                        alis *= 1000
-                    if satis > 0 and satis < 100:
-                        satis *= 1000
-
-                    ham_veri["HAS"]["alis"] = alis
-                    ham_veri["HAS"]["satis"] = satis
-                    break
-
-        res_cur = requests.get(
-            "https://api.collectapi.com/economy/allCurrency",
-            headers=headers,
+        scraper = cloudscraper.create_scraper()
+        res = scraper.get(
+            "https://mobil.gencmetalrafineri.com/service/index.php?islem=cur__prices",
             timeout=10,
         )
-        veri_cur = res_cur.json()
+        res.raise_for_status()
+        veri = res.json()
 
-        if veri_cur.get("success"):
-            for item in veri_cur["result"]:
-                if item["code"] == "USD":
-                    ham_veri["USD"]["alis"] = guvenli_float(item["buying"])
-                    ham_veri["USD"]["satis"] = guvenli_float(item["selling"])
-                elif item["code"] == "EUR":
-                    ham_veri["EUR"]["alis"] = guvenli_float(item["buying"])
-                    ham_veri["EUR"]["satis"] = guvenli_float(item["selling"])
+        if "data" in veri:
+            data = veri["data"]
+
+            if "ALTIN" in data:
+                ham_veri["HAS"]["alis"] = guvenli_float(data["ALTIN"].get("alis"))
+                ham_veri["HAS"]["satis"] = guvenli_float(data["ALTIN"].get("satis"))
+
+            for key, item in data.items():
+                if not isinstance(item, dict):
+                    continue
+
+                if key in ["USD", "USDTRY", "USDTRL"]:
+                    ham_veri["USD"]["alis"] = guvenli_float(item.get("alis"))
+                    ham_veri["USD"]["satis"] = guvenli_float(item.get("satis"))
+                elif key in ["EUR", "EURTRY", "EURTRL"]:
+                    ham_veri["EUR"]["alis"] = guvenli_float(item.get("alis"))
+                    ham_veri["EUR"]["satis"] = guvenli_float(item.get("satis"))
 
         if ham_veri["HAS"]["alis"] > 0:
             son_cekilen_veri = ham_veri
             son_cekim_zamani = guncel_zaman
 
     except Exception as e:
-        print("API Baglanti Hatasi:", e)
+        print("Genç Metal API Baglanti Hatasi:", e)
         if son_cekilen_veri is not None:
             return son_cekilen_veri
         else:
@@ -150,13 +131,14 @@ def matematiksel_motor():
 
     islenmis = {"ozet": {}, "altin": {}, "eski_altin": {}, "doviz": {}}
 
-    islenmis["ozet"]["HAS ALTIN"] = {"alis": h_alis - 5, "satis": h_satis}
-    islenmis["ozet"]["GRAM ALTIN"] = {
+    # Sadece yeni standart isimler bırakıldı (Mükerrerler silindi)
+    islenmis["ozet"]["24 GRAM"] = {"alis": h_alis - 5, "satis": h_satis}
+    islenmis["ozet"]["24 AYAR"] = {
         "alis": maliyet["GRAM"]["alis"] - 10,
         "satis": maliyet["GRAM"]["satis"],
     }
 
-    islenmis["altin"]["22 AYAR BİLEZİK"] = {
+    islenmis["altin"]["22 AYAR"] = {
         "alis": maliyet["22_AYAR"]["alis"] - 25,
         "satis": maliyet["22_AYAR"]["satis"],
     }
@@ -193,10 +175,10 @@ def matematiksel_motor():
 def guncel_fiyatlari_getir():
     return {
         "magaza": "Sedef Kuyumculuk",
-        "altyapi": "CollectAPI Kurumsal VIP",
+        "altyapi": "Genç Metal Rafineri",
         "kategoriler": matematiksel_motor(),
     }
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
