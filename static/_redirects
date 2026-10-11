@@ -1,0 +1,4 @@
+/              /vitrin/index.html   302
+/vitrin        /vitrin/index.html   302
+/vitrin/       /vitrin/index.html   302
+/vitrin/*      /:splat              200

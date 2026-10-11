@@ -119,23 +119,26 @@ const json = (obj, status = 200) => new Response(JSON.stringify(obj), {
   },
 });
 
+// /api/guncel-fiyatlar yanıtı · hem Worker hem Pages Functions kullanır
+export async function apiYaniti(ctx) {
+  const son = await verileriGetir(ctx);
+  if (!son) return json({ magaza: "Sedef Kuyumculuk", durum: "yok" }, 503);
+  const yas = Math.floor(Date.now() / 1000 - son.zaman);
+  return json({
+    magaza: "Sedef Kuyumculuk",
+    durum: yas > BAYAT_SURESI ? "bayat" : "canli",
+    guncelleme: Math.floor(son.zaman),
+    yas_sn: yas,
+    kategoriler: matematikselMotor(son.ham),
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const yol = url.pathname;
 
-    if (yol === "/api/guncel-fiyatlar") {
-      const son = await verileriGetir(ctx);
-      if (!son) return json({ magaza: "Sedef Kuyumculuk", durum: "yok" }, 503);
-      const yas = Math.floor(Date.now() / 1000 - son.zaman);
-      return json({
-        magaza: "Sedef Kuyumculuk",
-        durum: yas > BAYAT_SURESI ? "bayat" : "canli",
-        guncelleme: Math.floor(son.zaman),
-        yas_sn: yas,
-        kategoriler: matematikselMotor(son.ham),
-      });
-    }
+    if (yol === "/api/guncel-fiyatlar") return apiYaniti(ctx);
 
     if (yol === "/" || yol === "/vitrin" || yol === "/vitrin/") {
       return Response.redirect(url.origin + "/vitrin/index.html", 307);
