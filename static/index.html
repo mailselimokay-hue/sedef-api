@@ -43,7 +43,7 @@
     background: var(--bg); color: var(--ink);
     font: 16px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-variant-numeric: tabular-nums;
-    padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    padding: calc(env(safe-area-inset-top, 0px) + 28px) 16px max(24px, env(safe-area-inset-bottom));  /* iOS üstteki bulanık şeridin altında kalsın */
   }
   .sayfa { max-width: 520px; margin: 0 auto; }
 
