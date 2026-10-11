@@ -1,310 +1,306 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sedef Kuyumculuk - Canlı Fiyatlar</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Sedef · Canlı Fiyatlar</title>
+<meta property="og:title" content="Sedef Kuyumculuk | Canlı Altın ve Döviz">
+<meta property="og:description" content="Gram altın, çeyrek, yarım, tam, ata ve döviz · anlık alış/satış">
+<meta property="og:image" content="https://borsa.sedefkuyumculuk.com/vitrin/paylasim.jpg">
+<meta property="og:url" content="https://borsa.sedefkuyumculuk.com">
+<meta property="og:type" content="website">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="ikon-180.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  :root {
+    --bg: #F2F2F7; --card: #FFFFFF; --ink: #1C1C1E; --ink2: #6E6E73; --ink3: #AEAEB2;
+    --line: rgba(60,60,67,.12); --gold: #A8842C; --gold-soft: rgba(168,132,44,.10);
+    --up: #1E9E4A; --up-bg: rgba(52,199,89,.16); --down: #E0352B; --down-bg: rgba(255,59,48,.14);
+    --warn: #C77700; --warn-bg: rgba(255,159,10,.14); --bad: #D70015; --bad-bg: rgba(255,59,48,.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema="acik"]) {
+      --bg: #000000; --card: #1C1C1E; --ink: #F5F5F7; --ink2: #98989F; --ink3: #636366;
+      --line: rgba(84,84,88,.45); --gold: #E2C47D; --gold-soft: rgba(226,196,125,.10);
+      --up: #32D74B; --up-bg: rgba(50,215,75,.18); --down: #FF453A; --down-bg: rgba(255,69,58,.18);
+      --warn: #FF9F0A; --warn-bg: rgba(255,159,10,.16); --bad: #FF453A; --bad-bg: rgba(255,69,58,.16);
+    }
+  }
+  :root[data-tema="koyu"] {
+    --bg: #000000; --card: #1C1C1E; --ink: #F5F5F7; --ink2: #98989F; --ink3: #636366;
+    --line: rgba(84,84,88,.45); --gold: #E2C47D; --gold-soft: rgba(226,196,125,.10);
+    --up: #32D74B; --up-bg: rgba(50,215,75,.18); --down: #FF453A; --down-bg: rgba(255,69,58,.18);
+    --warn: #FF9F0A; --warn-bg: rgba(255,159,10,.16); --bad: #FF453A; --bad-bg: rgba(255,69,58,.16);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  }
+  .sayfa { max-width: 520px; margin: 0 auto; }
 
-    <!-- WhatsApp, Instagram, Facebook için Link Paylaşım (Open Graph) Ayarları -->
-    <meta property="og:title" content="Sedef Kuyumculuk | Canlı Altın ve Döviz Piyasası">
-    <meta property="og:description" content="Fikirtepe Sedef Kuyumculuk - Anlık gram altın, çeyrek, yarım, tam, ata lira ve güncel döviz kurları alış/satış fiyatları.">
-    <!-- OG Görseli tekrar logo.png yapıldı -->
-    <meta property="og:image" content="https://borsa.sedefkuyumculuk.com/vitrin/logo.png">
-    <meta property="og:url" content="https://borsa.sedefkuyumculuk.com">
-    <meta property="og:type" content="website">
+  /* Üst satır */
+  .ust { display: flex; align-items: center; justify-content: space-between; padding: 6px 4px 18px; }
+  .marka { display: flex; align-items: center; gap: 10px; }
+  .marka .amblem { width: 40px; height: 40px; }
+  .marka .yazi { height: 30px; width: auto; display: block; }
+  .tema { border: 0; background: var(--card); color: var(--ink2); width: 36px; height: 36px; border-radius: 50%;
+          cursor: pointer; display: grid; place-items: center; }
+  .tema svg { width: 18px; height: 18px; }
 
-    <!-- Twitter ve Diğer Platformlar için -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Sedef Kuyumculuk | Canlı Altın ve Döviz Piyasası">
-    <meta name="twitter:description" content="Fikirtepe Sedef Kuyumculuk - Anlık gram altın, çeyrek, yarım, tam, ata lira ve güncel döviz kurları.">
-    <!-- Twitter Görseli tekrar logo.png yapıldı -->
-    <meta name="twitter:image" content="https://borsa.sedefkuyumculuk.com/vitrin/logo.png">
+  /* Durum hapı */
+  .durum { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500;
+           color: var(--ink2); padding: 0 4px; margin-bottom: 10px; }
+  .durum i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink3); }
+  .durum.canli i { background: var(--up); box-shadow: 0 0 0 0 var(--up); animation: nabiz 2s infinite; }
+  @keyframes nabiz { 0% { box-shadow: 0 0 0 0 var(--up-bg); } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
 
-    <style>
-        :root {
-            --bg-color: #0a0a0c;
-            --card-bg: #141416;
-            --row-bg: #1c1c1e;
-            --text-light: #f5f5f5;
-            --text-muted: #8e8e93;
-            --gold: #d4af37;
-            --gold-light: #e6c875;
-            --anthracite: #8b8e91; 
-            --anthracite-dark: #6c6f72; 
-            --green: #34c759;
-            --red: #ff3b30;
-        }
+  .durum.bayat i { background: var(--warn); }
+  .durum.yok i { background: var(--bad); }
+  .uyari { display: none; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px; font-weight: 600; }
+  .uyari small { display: block; font-weight: 400; font-size: 12.5px; margin-top: 2px; opacity: .85; }
+  .uyari.bayat { display: block; background: var(--warn-bg); color: var(--warn); }
+  .uyari.yok { display: block; background: var(--bad-bg); color: var(--bad); }
+  .uyari.yedek { display: block; background: var(--gold-soft); color: var(--gold); }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-light);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            padding: 20px 8px;
-        }
+  /* Gruplar */
+  .grup { margin-bottom: 22px; }
+  .grup h2 { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink2);
+             text-transform: uppercase; letter-spacing: .6px; padding: 0 16px 7px; }
+  .grup h2 span { display: flex; gap: 0; }
+  .grup h2 span em { font-style: normal; width: 104px; text-align: right; }
+  .liste { background: var(--card); border-radius: 16px; overflow: hidden; }
+  .satir { display: flex; align-items: center; min-height: 56px; padding: 0 16px; position: relative; }
+  .satir + .satir::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: 1px solid var(--line); }
+  .ad { flex: 1; min-width: 0; }
+  .ad b { display: block; font-size: 16px; font-weight: 600; }
+  .ad small { display: block; font-size: 12px; color: var(--ink2); margin-top: 1px; }
+  .fiyat { width: 104px; text-align: right; font-size: 16px; white-space: nowrap; }
+  .fiyat.alis { color: var(--ink2); }
+  .fiyat.satis { font-weight: 600; }
+  .fiyat span { display: inline-block; border-radius: 6px; padding: 2px 4px; margin-right: -4px; transition: background-color .8s, color .8s; }
+  .fiyat span.yukari { background: var(--up-bg); color: var(--up); transition: none; }
+  .fiyat span.asagi { background: var(--down-bg); color: var(--down); transition: none; }
+  .soluk .fiyat, .soluk .buyuk span, .soluk .alt b { opacity: .35; }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-        }
 
-        /* Üst Başlık, Logo ve Saat Alanı */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 0 10px;
-        }
+  /* Üst karolar (Harem'deki üst şerit gibi) */
+  .karolar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+  .karo { background: var(--card); border-radius: 16px; padding: 12px 14px; }
+  .karo .ust2 { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--ink2); font-weight: 500; }
+  .karo .deger { font-size: 24px; font-weight: 700; letter-spacing: -.4px; margin-top: 4px; }
+  .karo .deger span { border-radius: 6px; padding: 0 3px; margin-left: -3px; transition: background-color .8s, color .8s; }
+  .karo .deger span.yukari { background: var(--up-bg); color: var(--up); transition: none; }
+  .karo .deger span.asagi { background: var(--down-bg); color: var(--down); transition: none; }
+  .karo .alt2 { font-size: 12px; color: var(--ink2); margin-top: 2px; }
+  .yuzde { font-size: 12px; font-weight: 600; font-style: normal; }
+  .yuzde.art { color: var(--up); } .yuzde.dus { color: var(--down); } .yuzde.sabit { color: var(--ink3); }
+  .fiyat.satis .yuzde { display: block; margin-top: 1px; }
+  .soluk .karo .deger, .soluk .karo .alt2 { opacity: .35; }
+  @media (min-width: 900px) { .karolar { grid-template-columns: repeat(4, 1fr); } .karo .deger { font-size: 30px; } }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+  /* Hesapla */
+  .hesap { background: var(--card); border-radius: 16px; padding: 14px 16px 16px; }
+  .hesap .giris { display: flex; gap: 10px; }
+  .hesap select, .hesap input {
+    font: inherit; font-size: 17px; color: var(--ink); background: var(--bg); border: 0; border-radius: 10px;
+    padding: 11px 12px; min-width: 0; -webkit-appearance: none; appearance: none; }
+  .hesap select { flex: 1.4; }
+  .hesap .miktar { flex: 1; display: flex; align-items: center; background: var(--bg); border-radius: 10px; padding-right: 12px; }
+  .hesap .miktar input { width: 100%; text-align: right; background: transparent; }
+  .hesap .miktar span { color: var(--ink2); font-size: 14px; margin-left: 4px; }
+  .hesap .sonuc { display: flex; gap: 10px; margin-top: 12px; }
+  .hesap .sonuc div { flex: 1; background: var(--bg); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; color: var(--ink2); }
+  .hesap .sonuc b { display: block; font-size: 19px; color: var(--ink); font-weight: 600; margin-top: 2px; white-space: nowrap; }
+  .hesap .sonuc .satisT b { color: var(--gold); }
 
-        .brand-logo {
-            width: 44px;
-            height: 44px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
+  .dip { text-align: center; font-size: 12px; color: var(--ink3); padding-top: 4px; }
 
-        .brand-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo-title {
-            color: var(--anthracite);
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 2px;
-        }
-
-        .logo-subtitle {
-            color: var(--anthracite-dark);
-            font-size: 11px;
-            letter-spacing: 4px;
-            margin-top: 2px;
-        }
-
-        .clock {
-            color: var(--gold-light);
-            font-size: 15px;
-            font-family: monospace;
-            font-weight: 500;
-            letter-spacing: 1px;
-        }
-
-        /* Ana Liste Kartı */
-        .main-card {
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #222;
-        }
-
-        .card-header-title {
-            color: var(--gold);
-            text-align: center;
-            font-weight: 600;
-            letter-spacing: 2px;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .table-titles {
-            display: flex;
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            padding: 0 10px;
-            margin-bottom: 12px;
-        }
-
-        .col-urun { flex: 1.2; }
-        .col-alis { flex: 1; text-align: center; }
-        .col-satis { flex: 1; text-align: right; padding-right: 15px; }
-
-        /* Liste Satırları (Kapsüller) */
-        .row {
-            background-color: var(--row-bg);
-            border-radius: 25px;
-            padding: 14px 10px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.3s;
-        }
-
-        .row:last-child {
-            margin-bottom: 0;
-        }
-
-        .urun-adi {
-            flex: 1.2;
-            color: var(--text-light);
-            font-weight: 500;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-
-        .fiyat-alis {
-            flex: 1;
-            text-align: center;
-            color: var(--gold-light);
-            font-family: monospace;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-
-        .fiyat-satis {
-            flex: 1;
-            text-align: right;
-            color: var(--text-light);
-            font-family: monospace;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-        }
-
-        .tl-simge {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-left: 2px;
-        }
-
-        .ok {
-            font-size: 11px;
-            width: 12px;
-            text-align: center;
-        }
-        .ok.yukari { color: var(--green); }
-        .ok.asagi { color: var(--red); }
-        .ok.sabit { color: #555; }
-
-        @keyframes flash {
-            0% { background-color: rgba(212, 175, 55, 0.15); }
-            100% { background-color: var(--row-bg); }
-        }
-        .guncellendi {
-            animation: flash 0.6s ease-out;
-        }
-    </style>
+  /* Geniş ekran (dükkan ekranı / tablet) */
+  @media (min-width: 900px) {
+    .sayfa { max-width: 1040px; }
+    .izgara { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+  }
+</style>
 </head>
 <body>
-
-<div class="container">
-    <div class="top-bar">
-        <div class="logo-container">
-            <img src="logo.png" alt="Sedef Logo" class="brand-logo">
-            <div class="brand-text">
-                <div class="logo-title">SEDEF</div>
-                <div class="logo-subtitle">KUYUMCULUK</div>
-            </div>
-        </div>
-        <div class="clock" id="clock">--:--:--</div>
+<div class="sayfa" id="sayfa">
+  <header class="ust">
+    <div class="marka">
+      <img class="amblem" src="amblem.png" alt="">
+      <img class="yazi" src="yazi.png" alt="Sedef Kuyumculuk">
     </div>
+    <button class="tema" id="tema" aria-label="Görünüm" title="Açık / koyu görünüm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+  </header>
 
-    <div class="main-card">
-        <div class="card-header-title">CANLI PİYASALAR</div>
-        
-        <div class="table-titles">
-            <div class="col-urun">ÜRÜN</div>
-            <div class="col-alis">ALIŞ</div>
-            <div class="col-satis">SATIŞ</div>
-        </div>
+  <div class="durum" id="durum"><i></i><span>Bağlanıyor…</span></div>
+  <div class="uyari" id="uyari"></div>
 
-        <div id="fiyat-listesi">
-            <!-- JS ile veriler buraya dolacak -->
-        </div>
+  <div class="karolar">
+    <div class="karo"><div class="ust2">Gram Altın<em class="yuzde" data-y="GRAM ALTIN"></em></div><div class="deger"><span data-k="GRAM ALTIN|satis|karo">—</span></div><div class="alt2">Alış <b data-a="GRAM ALTIN">—</b></div></div>
+    <div class="karo"><div class="ust2">Has Altın<em class="yuzde" data-y="HAS ALTIN"></em></div><div class="deger"><span data-k="HAS ALTIN|satis|karo">—</span></div><div class="alt2">Alış <b data-a="HAS ALTIN">—</b></div></div>
+    <div class="karo"><div class="ust2">Dolar<em class="yuzde" data-y="Dolar"></em></div><div class="deger"><span data-k="Dolar|satis|karo">—</span></div><div class="alt2">Alış <b data-a="Dolar">—</b></div></div>
+    <div class="karo"><div class="ust2">Euro<em class="yuzde" data-y="Euro"></em></div><div class="deger"><span data-k="Euro|satis|karo">—</span></div><div class="alt2">Alış <b data-a="Euro">—</b></div></div>
+  </div>
+
+  <div class="izgara">
+    <div>
+      <section class="grup"><h2>Altın · gram<span><em>Alış</em><em>Satış</em></span></h2><div class="liste" id="g-altin"></div></section>
+      <section class="grup"><h2>Döviz<span><em>Alış</em><em>Satış</em></span></h2><div class="liste" id="g-doviz"></div></section>
     </div>
+    <div>
+      <section class="grup"><h2>Yeni ziynet<span><em>Alış</em><em>Satış</em></span></h2><div class="liste" id="g-yeni"></div></section>
+      <section class="grup"><h2>Eski ziynet<span><em>Alış</em><em>Satış</em></span></h2><div class="liste" id="g-eski"></div></section>
+    </div>
+  </div>
+
+  <section class="grup">
+    <h2>Hesapla</h2>
+    <div class="hesap">
+      <div class="giris">
+        <select id="h-urun" aria-label="Ürün"></select>
+        <label class="miktar"><input id="h-miktar" inputmode="decimal" value="10" aria-label="Miktar"><span id="h-birim">gr</span></label>
+      </div>
+      <div class="sonuc">
+        <div>Alış toplamı<b id="h-alis">—</b></div>
+        <div class="satisT">Satış toplamı<b id="h-satis">—</b></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="dip">Fiyatlar bilgi amaçlıdır · işlem öncesi teyit ediniz</div>
 </div>
 
 <script>
-    const gizliKalemler = ["24 AYAR", "22 AYAR"];
-    let eskiFiyatlar = {};
+  // Sunucudan gelen isim → ekranda görünecek ad ve grup
+  const KALEMLER = [
+    ["HAS ALTIN",   "Has Altın",  "24 ayar · 1000", "altin"],
+    ["GRAM ALTIN",  "Gram Altın", "995",            "altin"],
+    ["22 AYAR",     "22 Ayar",    "916",            "altin"],
+    ["YENİ ÇEYREK", "Çeyrek",     "",               "yeni"],
+    ["YENİ YARIM",  "Yarım",      "",               "yeni"],
+    ["YENİ TAM",    "Tam",        "",               "yeni"],
+    ["YENİ ATA",    "Ata",        "",               "yeni"],
+    ["ESKİ ÇEYREK", "Çeyrek",     "",               "eski"],
+    ["ESKİ YARIM",  "Yarım",      "",               "eski"],
+    ["ESKİ TAM",    "Tam",        "",               "eski"],
+    ["ESKİ ATA",    "Ata",        "",               "eski"],
+    ["Dolar",       "Dolar",      "USD",            "doviz"],
+    ["Euro",        "Euro",       "EUR",            "doviz"],
+  ];
+  const tl = (n, b = 2) => Number(n).toLocaleString("tr-TR", { minimumFractionDigits: b, maximumFractionDigits: b });
+  const DOVIZ = ["Dolar", "Euro"];  // döviz Harem gibi 3 basamak
+  const basamak = k => DOVIZ.includes(k) ? 3 : /ÇEYREK|YARIM|TAM|ATA/.test(k) ? 0 : 2;  // ziynet tam lira
+  const $ = id => document.getElementById(id);
+  const onceki = {};
 
-    function formatiAyarla(sayi) {
-        return parseFloat(sayi).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Satırları bir kez kur, sonra yalnızca rakamları güncelle (titreme olmaz)
+  for (const [k, ad, alt, g] of KALEMLER) {
+    const s = document.createElement("div");
+    s.className = "satir";
+    s.innerHTML = `<div class="ad"><b>${ad}</b>${alt ? `<small>${alt}</small>` : ""}</div>` +
+                  `<div class="fiyat alis"><span data-k="${k}|alis">—</span></div>` +
+                  `<div class="fiyat satis"><span data-k="${k}|satis">—</span><em class="yuzde" data-y="${k}"></em></div>`;
+    $("g-" + g).appendChild(s);
+  }
+
+  // Hesaplama: ürün × miktar
+  const sonFiyat = {};
+  for (const [k, ad, , g] of KALEMLER) {
+    const o = document.createElement("option"); o.value = k; o.textContent = (g === "eski" ? "Eski " : g === "yeni" ? "Yeni " : "") + ad + (g === "yeni" || g === "eski" ? " (adet)" : "");
+    $("h-urun").appendChild(o);
+  }
+  function hesapla() {
+    const k = $("h-urun").value, g = (KALEMLER.find(x => x[0] === k) || [])[3];
+    $("h-birim").textContent = (g === "yeni" || g === "eski") ? "adet" : g === "doviz" ? (k === "Dolar" ? "$" : "€") : "gr";
+    const m = parseFloat(($("h-miktar").value || "0").replace(/\./g, "").replace(",", ".")) || 0;
+    const f = sonFiyat[k];
+    $("h-alis").textContent = f ? tl(f.alis * m) + " ₺" : "—";
+    $("h-satis").textContent = f ? tl(f.satis * m) + " ₺" : "—";
+  }
+  $("h-urun").value = "GRAM ALTIN";
+  $("h-urun").onchange = hesapla; $("h-miktar").oninput = hesapla;
+
+  function yaz(el, deger, anahtar, basamak) {
+    const eski = onceki[anahtar];
+    el.textContent = tl(deger, basamak);
+    if (eski !== undefined && deger !== eski) {
+      el.classList.remove("yukari", "asagi");
+      void el.offsetWidth;
+      el.classList.add(deger > eski ? "yukari" : "asagi");
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove("yukari", "asagi"), 1200);
     }
+    onceki[anahtar] = deger;
+  }
 
-    setInterval(() => {
-        const simdi = new Date();
-        document.getElementById('clock').innerText = simdi.toLocaleTimeString('tr-TR');
-    }, 1000);
+  function durum(tur, metin, uyari, aciklama) {
+    $("durum").className = "durum " + tur;
+    $("durum").querySelector("span").textContent = metin;
+    $("uyari").className = "uyari " + (uyari ? tur : "");
+    $("uyari").innerHTML = uyari ? `${uyari}<small>${aciklama || ""}</small>` : "";
+    $("sayfa").classList.toggle("soluk", tur === "bayat" || tur === "yok");
+  }
 
-    async function verileriCek() {
-        try {
-            const yanit = await fetch('/api/guncel-fiyatlar');
-            const veri = await yanit.json();
-            
-            const listeDiv = document.getElementById('fiyat-listesi');
-            const birlesikListe = { ...veri.kategoriler.ozet, ...veri.kategoriler.altin, ...veri.kategoriler.doviz };
-            
-            let htmlIcerik = '';
-
-            for (const [isim, kurlar] of Object.entries(birlesikListe)) {
-                if (gizliKalemler.includes(isim)) continue;
-
-                let okHtml = '<span class="ok sabit">-</span>';
-                let eskiSatis = eskiFiyatlar[isim]?.satis;
-
-                if (eskiSatis) {
-                    if (kurlar.satis > eskiSatis) {
-                        okHtml = '<span class="ok yukari">▲</span>';
-                        eskiFiyatlar[isim].yon = okHtml;
-                    } else if (kurlar.satis < eskiSatis) {
-                        okHtml = '<span class="ok asagi">▼</span>';
-                        eskiFiyatlar[isim].yon = okHtml;
-                    } else {
-                        okHtml = eskiFiyatlar[isim].yon || okHtml;
-                    }
-                }
-
-                let satirClass = 'row';
-                if (eskiSatis && eskiSatis !== kurlar.satis) {
-                    satirClass += ' guncellendi';
-                }
-
-                htmlIcerik += `
-                    <div class="${satirClass}">
-                        <div class="urun-adi">${isim}</div>
-                        <div class="fiyat-alis">${formatiAyarla(kurlar.alis)} <span class="tl-simge">₺</span></div>
-                        <div class="fiyat-satis">
-                            ${formatiAyarla(kurlar.satis)} <span class="tl-simge">₺</span> ${okHtml}
-                        </div>
-                    </div>
-                `;
-
-                if (!eskiFiyatlar[isim]) eskiFiyatlar[isim] = {};
-                eskiFiyatlar[isim].satis = kurlar.satis;
-            }
-
-            listeDiv.innerHTML = htmlIcerik;
-
-        } catch (hata) {
-            console.error("Fiyatlar güncellenemedi:", hata);
-        }
+  async function cek() {
+    try {
+      const r = await fetch("/api/guncel-fiyatlar", { cache: "no-store" });
+      const v = await r.json();
+      if (!r.ok || !v.kategoriler) {
+        return durum("yok", "Fiyat yok", "Fiyat alınamıyor", "Ekrandaki fiyatlarla işlem yapmayın.");
+      }
+      const hepsi = Object.assign({}, ...Object.values(v.kategoriler));
+      document.querySelectorAll("[data-k]").forEach(el => {
+        const [k, yon] = el.dataset.k.split("|");
+        if (hepsi[k]) yaz(el, hepsi[k][yon], el.dataset.k, basamak(k));
+      });
+      Object.assign(sonFiyat, hepsi); hesapla();
+      document.querySelectorAll("[data-a]").forEach(el => {
+        const f = hepsi[el.dataset.a]; if (f) el.textContent = tl(f.alis, basamak(el.dataset.a));
+      });
+      document.querySelectorAll("[data-y]").forEach(el => {
+        const f = hepsi[el.dataset.y]; const d = f ? f.degisim : null;
+        if (d === null || d === undefined) { el.textContent = ""; return; }
+        el.className = "yuzde " + (d > 0 ? "art" : d < 0 ? "dus" : "sabit");
+        el.textContent = (d > 0 ? "▲ " : d < 0 ? "▼ " : "") + "%" + Math.abs(d).toFixed(2).replace(".", ",");
+      });
+      const saat = new Date(v.guncelleme * 1000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      if (v.durum === "bayat") {
+        durum("bayat", "Gecikmeli · " + saat, "Fiyatlar " + Math.round(v.yas_sn / 60) + " dakikadır güncellenmedi", "Teyit etmeden işlem yapmayın.");
+      } else if (v.kaynak === "yedek") {
+        durum("canli", "Canlı · " + saat, "Yedek kaynaktan gösteriliyor", "Ana kaynak şu an yanıt vermiyor.");
+        $("uyari").className = "uyari yedek";
+      } else {
+        durum("canli", "Canlı · " + saat);
+      }
+    } catch (e) {
+      durum("yok", "Bağlantı yok", "İnternet bağlantısı yok", "Ekrandaki fiyatlarla işlem yapmayın.");
     }
+  }
 
-    verileriCek();
-    setInterval(verileriCek, 2000);
+  // Açık / koyu görünüm (telefonun ayarını izler, düğmeyle değiştirilebilir)
+  const temaKaydi = (() => { try { return localStorage.getItem("tema"); } catch (e) { return null; } })();
+  if (temaKaydi) document.documentElement.dataset.tema = temaKaydi;
+  $("tema").onclick = () => {
+    const koyuMu = document.documentElement.dataset.tema
+      ? document.documentElement.dataset.tema === "koyu"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    const yeni = koyuMu ? "acik" : "koyu";
+    document.documentElement.dataset.tema = yeni;
+    try { localStorage.setItem("tema", yeni); } catch (e) {}
+  };
+
+  cek();
+  setInterval(cek, 2000);
 </script>
-
 </body>
 </html>
