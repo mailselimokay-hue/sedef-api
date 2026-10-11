@@ -49,108 +49,92 @@ def guvenli_float(deger):
         return 0.0
 
 
+KAYNAK_URL = "https://mobil.gencmetalrafineri.com/service/index.php?islem=cur__prices"
+
+
 def ana_verileri_cek():
+    """Kaynaktaki bütün kalemleri {kod: {alis, satis, kapanis}} olarak döndürür.
+    Taze veri gelmezse son geçerli veri; hiç yoksa None (uydurma fiyat yok)."""
     global son_cekilen_veri, son_cekim_zamani
-    guncel_zaman = time.time()
-
-    if (
-        son_cekilen_veri is not None
-        and (guncel_zaman - son_cekim_zamani) < CACHE_SURESI
-    ):
+    simdi = time.time()
+    if son_cekilen_veri is not None and (simdi - son_cekim_zamani) < CACHE_SURESI:
         return son_cekilen_veri
-
-    ham_veri = {
-        "HAS": {"alis": 0.0, "satis": 0.0},
-        "USD": {"alis": 0.0, "satis": 0.0},
-        "EUR": {"alis": 0.0, "satis": 0.0},
-    }
-
     try:
-        scraper = cloudscraper.create_scraper()
-        res = scraper.get(
-            "https://mobil.gencmetalrafineri.com/service/index.php?islem=cur__prices",
-            timeout=10,
-        )
+        res = cloudscraper.create_scraper().get(KAYNAK_URL, timeout=10)
         res.raise_for_status()
-        veri = res.json()
-
-        if "data" in veri:
-            data = veri["data"]
-
-            if "ALTIN" in data:
-                ham_veri["HAS"]["alis"] = guvenli_float(data["ALTIN"].get("alis"))
-                ham_veri["HAS"]["satis"] = guvenli_float(data["ALTIN"].get("satis"))
-
-            for key, item in data.items():
-                if not isinstance(item, dict):
-                    continue
-
-                if key in ["USD", "USDTRY", "USDTRL"]:
-                    ham_veri["USD"]["alis"] = guvenli_float(item.get("alis"))
-                    ham_veri["USD"]["satis"] = guvenli_float(item.get("satis"))
-                elif key in ["EUR", "EURTRY", "EURTRL"]:
-                    ham_veri["EUR"]["alis"] = guvenli_float(item.get("alis"))
-                    ham_veri["EUR"]["satis"] = guvenli_float(item.get("satis"))
-
-        if ham_veri["HAS"]["alis"] > 0:
-            son_cekilen_veri = ham_veri
-            son_cekim_zamani = guncel_zaman
-
+        data = res.json().get("data", {})
+        ham = {}
+        for kod, item in data.items():
+            if isinstance(item, dict):
+                ham[kod] = {
+                    "alis": guvenli_float(item.get("alis")),
+                    "satis": guvenli_float(item.get("satis")),
+                    "kapanis": guvenli_float(item.get("kapanis")),
+                }
+        if ham.get("ALTIN", {}).get("alis", 0) > 0 and ham["ALTIN"]["satis"] > 0:
+            son_cekilen_veri, son_cekim_zamani = ham, simdi
     except Exception as e:
         print("Fiyat kaynagi baglanti hatasi:", e)
-
-    # Uydurma fiyat yok: taze veri gelmediyse son geçerli veri (yaşıyla birlikte) ya da hiç veri
-    if ham_veri["HAS"]["alis"] > 0:
-        return ham_veri
     return son_cekilen_veri
 
 
 # ---------------------------------------------------------------------------
-# FİYAT STRATEJİSİ: Harem ile birebir aynı fiyat.
-# Kaynağın has altın fiyatı Harem'in has fiyatıyla aynı; diğer bütün kalemler
-# has fiyatından Harem'in oranlarıyla türetilir (11.10.2026 Harem ekranından ölçüldü).
-#   kalem: (alış katsayısı, satış katsayısı, yuvarlama basamağı)
-# Satışta "en uygun fiyat" için SATIS_INDIRIM ile tüm satışları binde X aşağı çekebilirsiniz (0 = Harem ile aynı).
+# FİYAT STRATEJİSİ: Harem ile birebir aynı fiyat (pazarlık payı saklı kalır).
+# Kaynak, ürünlerin hazır fiyatlarını Harem ile aynı veriyor (11.10.2026 kontrol edildi),
+# bu yüzden doğrudan kullanılıyor. Tek istisna gram altın alışı: has alışı × 0,995
+# (995 milyem, alışta 5 milyem düşülür) · Harem de böyle hesaplıyor.
+# Kaynakta bir kalem yoksa has fiyatından Harem oranıyla hesaplanır (yedek).
+#   (ekran adı, grup, kaynak kodu, yedek alış katsayısı, yedek satış katsayısı, basamak)
 # ---------------------------------------------------------------------------
-SATIS_INDIRIM = 0.0  # örn. 0.001 = satışlar Harem'den binde 1 ucuz
+KALEMLER = [
+    ("HAS ALTIN",   "altin", "ALTIN",       1.0,      1.0,       2),
+    ("GRAM ALTIN",  "altin", "GRAMALTIN",   0.995,    1.003,     2),
+    ("22 AYAR",     "altin", "AYAR22",      0.909698, 0.9369923, 2),
+    ("YENİ ÇEYREK", "yeni",  "CEYREK_YENI", 1.63,     1.63476,   0),
+    ("YENİ YARIM",  "yeni",  "YARIM_YENI",  3.26,     3.26847,   0),
+    ("YENİ TAM",    "yeni",  "TEK_YENI",    6.50306,  6.518,     0),
+    ("YENİ ATA",    "yeni",  "ATA_YENI",    6.61994,  6.68307,   0),
+    ("ESKİ ÇEYREK", "eski",  "CEYREK_ESKI", 1.60994,  1.61374,   0),
+    ("ESKİ YARIM",  "eski",  "YARIM_ESKI",  3.20299,  3.21149,   0),
+    ("ESKİ TAM",    "eski",  "TEK_ESKI",    6.41007,  6.42809,   0),
+    ("ESKİ ATA",    "eski",  "ATA_ESKI",    6.61298,  6.63299,   0),
+    ("Dolar",       "doviz", "USDTRY",      None,     None,      3),
+    ("Euro",        "doviz", "EURTRY",      None,     None,      3),
+]
+GRAM_MILYEM = 0.995
 
-ALTIN_KATSAYI = {
-    "HAS ALTIN":   (1.0,     1.0,     2),
-    "GRAM ALTIN":  (0.995,   1.003,   2),   # 995 milyem: alışta 5 milyem düşülür
-    "22 AYAR":     (0.909698, 0.9369923, 2),
-}
-SIKKE_KATSAYI = {
-    "YENİ ÇEYREK": (1.63,    1.63476, 0),   # sikke fiyatları Harem gibi tam lira
-    "YENİ YARIM":  (3.26,    3.26847, 0),
-    "YENİ TAM":    (6.50306, 6.518,   0),
-    "YENİ ATA":    (6.61994, 6.68307, 0),
-}
 
-
-def _fiyat(h_alis, h_satis, katsayi):
-    ka, ks, basamak = katsayi
-    return {
-        "alis": round(h_alis * ka, basamak),
-        "satis": round(h_satis * ks * (1 - SATIS_INDIRIM), basamak),
-    }
+def _degisim(fiyat, kapanis):
+    """Günlük değişim yüzdesi · kaynağın kapanış fiyatına göre.
+    NOT: kapanış alanının anlamı piyasa açıkken Harem'in yüzdesiyle karşılaştırılıp doğrulanacak."""
+    if not kapanis or kapanis <= 0 or not fiyat:
+        return None
+    return round((fiyat - kapanis) / kapanis * 100, 2)
 
 
 def matematiksel_motor():
-    baz = ana_verileri_cek()
-    if baz is None:
+    ham = ana_verileri_cek()
+    if ham is None:
         return None
-    h_alis = baz["HAS"]["alis"]
-    h_satis = baz["HAS"]["satis"]
-
-    islenmis = {"ozet": {}, "altin": {}, "eski_altin": {}, "doviz": {}}
-    for ad, k in ALTIN_KATSAYI.items():
-        islenmis["ozet" if ad != "22 AYAR" else "altin"][ad] = _fiyat(h_alis, h_satis, k)
-    for ad, k in SIKKE_KATSAYI.items():
-        islenmis["altin"][ad] = _fiyat(h_alis, h_satis, k)
-
-    islenmis["doviz"]["Dolar"] = {"alis": baz["USD"]["alis"], "satis": baz["USD"]["satis"]}
-    islenmis["doviz"]["Euro"] = {"alis": baz["EUR"]["alis"], "satis": baz["EUR"]["satis"]}
-    return islenmis
+    has = ham["ALTIN"]
+    sonuc = {"altin": {}, "yeni": {}, "eski": {}, "doviz": {}}
+    for ad, grup, kod, ka, ks, basamak in KALEMLER:
+        k = ham.get(kod)
+        if k and k["alis"] > 0 and k["satis"] > 0:
+            alis, satis, kapanis = k["alis"], k["satis"], k["kapanis"]
+        elif ka is not None:
+            alis, satis, kapanis = has["alis"] * ka, has["satis"] * ks, has["kapanis"] * ks
+        else:
+            continue
+        k_alis_ham = alis
+        if kod == "GRAMALTIN":
+            alis = has["alis"] * GRAM_MILYEM
+        sonuc[grup][ad] = {
+            "alis": round(alis, basamak),
+            "satis": round(satis, basamak),
+            "degisim": _degisim(alis if kod != "GRAMALTIN" else k_alis_ham, kapanis),
+        }
+    return sonuc
 
 
 @app.get("/api/guncel-fiyatlar")

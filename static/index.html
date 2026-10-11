@@ -48,7 +48,8 @@
   .sayfa { max-width: 520px; margin: 0 auto; }
 
   /* Üst satır */
-  .ust { display: flex; align-items: center; justify-content: space-between; padding: 6px 4px 18px; }
+  .ust { display: flex; align-items: center; justify-content: center; padding: 6px 4px 18px; position: relative; min-height: 58px; }
+  .ust .tema { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); margin-top: -6px; }
   .marka { display: flex; align-items: center; gap: 10px; }
   .marka .amblem { width: 40px; height: 40px; }
   .marka .yazi { height: 30px; width: auto; display: block; }
@@ -57,7 +58,7 @@
   .tema svg { width: 18px; height: 18px; }
 
   /* Durum hapı */
-  .durum { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500;
+  .durum { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500;
            color: var(--ink2); padding: 0 4px; margin-bottom: 10px; }
   .durum i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink3); }
   .durum.canli i { background: var(--up); box-shadow: 0 0 0 0 var(--up); animation: nabiz 2s infinite; }
