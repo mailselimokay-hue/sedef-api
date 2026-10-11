@@ -16,6 +16,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def onbellek_kapat(request, call_next):
+    """Sayfa ve fiyatlar tarayıcıda eski hâliyle saklanmasın: her açılışta güncel sürüm gelsin."""
+    yanit = await call_next(request)
+    yol = request.url.path
+    if yol.endswith((".html", ".js", ".json")) or yol.startswith("/api/") or yol in ("/", "/vitrin", "/vitrin/"):
+        yanit.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return yanit
+
+
 app.mount("/vitrin", StaticFiles(directory="static"), name="static")
 
 
