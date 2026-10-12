@@ -78,14 +78,62 @@ export function matematikselMotor(ham) {
   return sonuc;
 }
 
+// ── Yedek kaynak: AltinAPI (yalnızca ana kaynak yanıt vermezse) ─────────
+// Anahtar Cloudflare'de gizli değişken olarak durur: ALTINAPI_KEY
+const YEDEK_URL = "https://altinapi.com/api/v1/prices";
+const YEDEK_CACHE_SURESI = 30;  // yedekteyken en fazla 30 sn'de bir istek (aylık kotayı korur)
+const MAX_SAPMA = 0.03;         // yedek fiyat, son ana fiyattan %3'ten fazla saparsa kullanılmaz
+
+function makulMu(yeni, ref) {
+  if (!yeni || !(yeni.alis > 0) || !(yeni.satis > 0) || yeni.alis > yeni.satis) return false;
+  if (!ref || !(ref.alis > 0)) return false;
+  return Math.abs(yeni.alis - ref.alis) / ref.alis <= MAX_SAPMA;
+}
+
+// AltinAPI cevabını ana kaynakla aynı biçime çevirir; her kalemi son ana fiyatla kıyaslar.
+async function yedektenGetir(env, ana) {
+  if (!env || !env.ALTINAPI_KEY || !ana || !ana.ALTIN) return null;  // referans yoksa uydurma yok
+  try {
+    const res = await fetch(YEDEK_URL, {
+      headers: { "X-API-Key": env.ALTINAPI_KEY, "Accept": "application/json" },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const liste = ((await res.json()) || {}).data || [];
+    const ham = {};
+    for (const x of liste) {
+      if (!x || !x.symbol) continue;
+      const kod = String(x.symbol).toUpperCase();
+      const aday = { alis: guvenliFloat(x.bid), satis: guvenliFloat(x.ask) };
+      if (!makulMu(aday, ana[kod])) continue;               // şüpheli kalem atlanır
+      aday.kapanis = ana[kod].kapanis || 0;                   // günlük değişim için ana kaynağın kapanışı
+      ham[kod] = aday;
+    }
+    return ham.ALTIN ? ham : null;  // has altın yoksa yedek kullanılmaz
+  } catch (e) {
+    console.log("Yedek kaynak hatasi:", String(e));
+    return null;
+  }
+}
+
 // Kaynaktan çek; taze değilse son geçerli veriyi kullan. Uydurma fiyat yok.
-async function verileriGetir(ctx) {
+// Sıra: Genç Metal → AltinAPI (yedek) → son geçerli veri ("Gecikmeli" uyarısıyla)
+async function verileriGetir(ctx, env) {
   const cache = caches.default;
   const anahtar = new Request(SON_GECERLI_KEY);
   const kayitli = await cache.match(anahtar);
-  let son = kayitli ? await kayitli.json() : null;   // { ham, zaman }
+  let son = kayitli ? await kayitli.json() : null;   // { ham, zaman, kaynak, ana }
+  if (son && !son.kaynak) { son.kaynak = "ana"; son.ana = son.ham; }  // eski kayıt biçimi
   const simdi = Date.now() / 1000;
-  if (son && simdi - son.zaman < CACHE_SURESI) return son;
+  const sure = son && son.kaynak === "yedek" ? YEDEK_CACHE_SURESI : CACHE_SURESI;
+  if (son && simdi - son.zaman < sure) return son;
+
+  const kaydet = (yeni) => {
+    const kayit = new Response(JSON.stringify(yeni), {
+      headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=604800" },
+    });
+    ctx.waitUntil(cache.put(anahtar, kayit));
+  };
 
   try {
     const res = await fetch(KAYNAK_URL, {
@@ -93,19 +141,25 @@ async function verileriGetir(ctx) {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
         "Accept": "application/json, text/plain, */*",
       },
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(6000),
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const ham = hamVeriyiAyikla(await res.json());
     if (ham.ALTIN && ham.ALTIN.alis > 0 && ham.ALTIN.satis > 0) {
-      son = { ham, zaman: simdi };
-      const kayit = new Response(JSON.stringify(son), {
-        headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=86400" },
-      });
-      ctx.waitUntil(cache.put(anahtar, kayit));
+      son = { ham, zaman: simdi, kaynak: "ana", ana: ham };
+      kaydet(son);
+      return son;
     }
+    throw new Error("gecersiz veri");
   } catch (e) {
     console.log("Fiyat kaynagi baglanti hatasi:", String(e));
+  }
+
+  // Ana kaynak yok → yedek
+  const yedekHam = await yedektenGetir(env, son && son.ana);
+  if (yedekHam) {
+    son = { ham: yedekHam, zaman: simdi, kaynak: "yedek", ana: son.ana };
+    kaydet(son);
   }
   return son;
 }
@@ -120,25 +174,27 @@ const json = (obj, status = 200) => new Response(JSON.stringify(obj), {
 });
 
 // /api/guncel-fiyatlar yanıtı · hem Worker hem Pages Functions kullanır
-export async function apiYaniti(ctx) {
-  const son = await verileriGetir(ctx);
+export async function apiYaniti(ctx, env) {
+  const son = await verileriGetir(ctx, env);
   if (!son) return json({ magaza: "Sedef Kuyumculuk", durum: "yok" }, 503);
   const yas = Math.floor(Date.now() / 1000 - son.zaman);
   return json({
     magaza: "Sedef Kuyumculuk",
     durum: yas > BAYAT_SURESI ? "bayat" : "canli",
+    kaynak: son.kaynak || "ana",
     guncelleme: Math.floor(son.zaman),
     yas_sn: yas,
     kategoriler: matematikselMotor(son.ham),
   });
 }
 
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const yol = url.pathname;
 
-    if (yol === "/api/guncel-fiyatlar") return apiYaniti(ctx);
+    if (yol === "/api/guncel-fiyatlar") return apiYaniti(ctx, env);
 
     if (yol === "/" || yol === "/vitrin" || yol === "/vitrin/") {
       return Response.redirect(url.origin + "/vitrin/index.html", 307);
