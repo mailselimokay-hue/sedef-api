@@ -81,7 +81,7 @@ export function matematikselMotor(ham) {
 // ── Yedek kaynak: AltinAPI (yalnızca ana kaynak yanıt vermezse) ─────────
 // Anahtar Cloudflare'de gizli değişken olarak durur: ALTINAPI_KEY
 const YEDEK_URL = "https://altinapi.com/api/v1/prices";
-const YEDEK_CACHE_SURESI = 30;  // yedekteyken en fazla 30 sn'de bir istek (aylık kotayı korur)
+const YEDEK_CACHE_SURESI = 900; // yedekteyken en fazla 15 dk.da bir istek (aylık kotayı korur · Selim 13.10)
 const MAX_SAPMA = 0.03;         // yedek fiyat, son ana fiyattan %3'ten fazla saparsa kullanılmaz
 
 function makulMu(yeni, ref) {
