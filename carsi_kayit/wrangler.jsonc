@@ -1,0 +1,14 @@
+// Çarşı fiyat kaydı · ayrı cron Worker (Pages Functions cron çalıştırmaz)
+// Yayın: bu klasörde  npx wrangler deploy
+{
+  "name": "sedef-carsi-kayit",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-11",
+  "workers_dev": false,
+  // UTC 06:00–17:55 = TR 09:00–20:55; kod 09:00–20:30 dışını atlar
+  "triggers": { "crons": ["*/5 6-17 * * *"] },
+  "d1_databases": [
+    { "binding": "CARSI_DB", "database_name": "sedef-carsi", "database_id": "0715fc89-f43e-4b61-b737-d24d1a7e2191" }
+  ],
+  "observability": { "enabled": true }
+}

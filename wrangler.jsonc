@@ -1,12 +1,12 @@
+// Cloudflare Pages projesi sedef-vitrin · ayar dosyası (bağlantılar buradan yönetilir)
+// Yayın: bu klasörde  npx wrangler pages deploy static --project-name sedef-vitrin --branch main
+// Gizli değişken ALTINAPI_KEY Cloudflare'de durur (wrangler pages secret), bu dosyaya yazılmaz.
+// Eski Worker (sedef-borsa) kurulumu git geçmişinde; çarşı kaydı Worker'ı carsi_kayit/ klasöründe.
 {
-  "name": "sedef-borsa",
-  "main": "src/worker.js",
-  "compatibility_date": "2026-09-01",
-  "assets": {
-    "directory": "./static",
-    "binding": "ASSETS",
-    "run_worker_first": true,
-    "html_handling": "none"
-  },
-  "observability": { "enabled": true }
+  "name": "sedef-vitrin",
+  "pages_build_output_dir": "./static",
+  "compatibility_date": "2026-10-11",
+  "d1_databases": [
+    { "binding": "CARSI_DB", "database_name": "sedef-carsi", "database_id": "0715fc89-f43e-4b61-b737-d24d1a7e2191" }
+  ]
 }
