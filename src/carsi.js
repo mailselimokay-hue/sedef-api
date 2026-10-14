@@ -42,8 +42,10 @@ export function sapmaAyikla(ham, onceki) {
 const r2 = (x) => Math.round(x * 100) / 100;
 
 // D1'deki günün örneklerinden kalem bazında ortalama / en düşük / en yüksek
-export async function gunlukOzet(db, gun) {
-  const { results } = await db.prepare("SELECT ts, saat, veri, isaretli FROM ornek WHERE gun = ?1 ORDER BY ts").bind(gun).all();
+// bas / bitis ("HH:MM", isteğe bağlı): yalnız bu saat aralığındaki örnekler (SEDEF SİSTEM çalışma saati 09:00–19:30 · 14.10)
+export async function gunlukOzet(db, gun, bas = null, bitis = null) {
+  const { results: tumu } = await db.prepare("SELECT ts, saat, veri, isaretli FROM ornek WHERE gun = ?1 ORDER BY ts").bind(gun).all();
+  const results = (tumu || []).filter((r) => (!bas || r.saat >= bas) && (!bitis || r.saat <= bitis));
   const kalemler = {};
   let isaretliSayisi = 0;
   for (const r of results || []) {
@@ -66,6 +68,7 @@ export async function gunlukOzet(db, gun) {
     ilk_saat: n ? results[0].saat : null,
     son_saat: n ? results[n - 1].saat : null,
     kayit_saatleri: "09:00–20:30 (5 dakikada bir)",
+    aralik: `${bas || "09:00"}–${bitis || "20:30"}`,
     isaretli_sayisi: isaretliSayisi,
     kalemler: cikti,
   };

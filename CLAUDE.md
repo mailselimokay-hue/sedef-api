@@ -30,5 +30,5 @@ Türkçe konuş. Personelin Harem Altın uygulaması yerine kullanacağı fiyat 
 - `carsi_kayit/` → ayrı **cron Worker** `sedef-carsi-kayit` (Pages Functions cron çalıştırmaz). Yayın: `cd carsi_kayit && npx wrangler deploy`.
 - Her 5 dakikada bir, **09:00–20:30 (TR)**, ana kaynaktan ALTIN, GRAMALTIN, AYAR22 ve ziynet/döviz kalemlerinin alış/satışı **D1 `sedef-carsi`** (tablo `ornek`, şema `carsi_kayit/sema.sql`) içine tek satır olarak yazılır (~139 yazma/gün, ücretsiz plan içinde).
 - Ana kaynak yanıt vermezse o dakika **atlanır**; yedek kaynak (AltinAPI) bu kayıtta **kullanılmaz**. Son 3 örneğin ortancasından %3'ten fazla oynayan kalem kaydedilmez, `isaretli` sütununa yazılır.
-- Okuma: `GET /api/carsi-gunluk?gun=YYYY-MM-DD` (`functions/api/carsi-gunluk.js`, ortak kod `src/carsi.js`) → kalem başına alış/satış ortalama · en düşük · en yüksek · örnek sayısı · ilk/son saat. Tedarikçi adı yanıtta yok (`kaynak: "carsi"`).
+- Okuma: `GET /api/carsi-gunluk?gun=YYYY-MM-DD[&bas=HH:MM&bitis=HH:MM]` (saat aralığı isteğe bağlı; SEDEF SİSTEM 09:00–19:30 çalışma saatini ister · 14.10) (`functions/api/carsi-gunluk.js`, ortak kod `src/carsi.js`) → kalem başına alış/satış ortalama · en düşük · en yüksek · örnek sayısı · ilk/son saat. Tedarikçi adı yanıtta yok (`kaynak: "carsi"`).
 - `/api/guncel-fiyatlar` ve vitrin bu kayıttan bağımsızdır.
